@@ -1,0 +1,1 @@
+﻿{"event":"charge.completed","data":{"status":"successful","payment_type":"bank_transfer","amount":1500,"tx_ref":"TEST-REF-REFERRAL-002","flw_ref":"FLW-REF-REFERRAL-002","customer":{"email":"referred@example.com"}}}

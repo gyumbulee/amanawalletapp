@@ -1,0 +1,48 @@
+service,count,total
+,2,1050
+{
+    "message": "Object of class App\\Enums\\TransactionType could not be converted to string",
+    "exception": "Error",
+    "file": "C:\\amanawalletapp\\backend\\app\\Http\\Controllers\\API\\V1\\ReportController.php",
+    "line": 116,
+    "trace": [
+        {
+            "file": "C:\\amanawalletapp\\backend\\app\\Http\\Controllers\\API\\V1\\ReportController.php",
+            "line": 116,
+            "function": "fputcsv"
+        },
+        {
+            "file": "C:\\amanawalletapp\\backend\\vendor\\symfony\\http-foundation\\StreamedResponse.php",
+            "line": 125,
+            "function": "{closure:App\\Http\\Controllers\\Api\\V1\\ReportController::streamCsv():111}",
+            "class": "App\\Http\\Controllers\\Api\\V1\\ReportController",
+            "type": "->"
+        },
+        {
+            "file": "C:\\amanawalletapp\\backend\\vendor\\symfony\\http-foundation\\Response.php",
+            "line": 408,
+            "function": "sendContent",
+            "class": "Symfony\\Component\\HttpFoundation\\StreamedResponse",
+            "type": "->"
+        },
+        {
+            "file": "C:\\amanawalletapp\\backend\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\Application.php",
+            "line": 1227,
+            "function": "send",
+            "class": "Symfony\\Component\\HttpFoundation\\Response",
+            "type": "->"
+        },
+        {
+            "file": "C:\\amanawalletapp\\backend\\public\\index.php",
+            "line": 20,
+            "function": "handleRequest",
+            "class": "Illuminate\\Foundation\\Application",
+            "type": "->"
+        },
+        {
+            "file": "C:\\amanawalletapp\\backend\\vendor\\laravel\\framework\\src\\Illuminate\\Foundation\\resources\\server.php",
+            "line": 23,
+            "function": "require_once"
+        }
+    ]
+}
