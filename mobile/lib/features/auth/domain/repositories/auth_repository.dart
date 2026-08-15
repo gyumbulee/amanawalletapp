@@ -32,7 +32,7 @@ abstract class AuthRepository {
     required String password,
   });
 
-  Future<AuthResult> verifyOtp({
+  Future<AuthResult?> verifyOtp({
     required String email,
     required String otp,
   });

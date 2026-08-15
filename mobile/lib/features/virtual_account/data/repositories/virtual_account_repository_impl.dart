@@ -13,7 +13,11 @@ class VirtualAccountRepositoryImpl implements VirtualAccountRepository {
     try {
       final response = await _api.getVirtualAccount();
       final data = response.data as Map<String, dynamic>;
-      final payload = data['data'] is Map ? data['data'] as Map<String, dynamic> : data;
+      // Backend wraps the payload under "virtual_account". Also accept a
+      // generic "data" wrapper or a flat body, in case that ever changes.
+      final payload = data['virtual_account'] is Map
+          ? data['virtual_account'] as Map<String, dynamic>
+          : (data['data'] is Map ? data['data'] as Map<String, dynamic> : data);
       return VirtualAccountModel.fromJson(payload);
     } catch (e) {
       throw ErrorMapper.map(e);

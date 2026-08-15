@@ -21,7 +21,7 @@ class ApiEndpoints {
   static const uploadPhoto = '/profile/photo';
 
   // Wallet
-  static const walletBalance = '/wallet/balance';
+  static const walletBalance = '/wallet';
   static const walletLedger = '/wallet/ledger';
 
   // Virtual account

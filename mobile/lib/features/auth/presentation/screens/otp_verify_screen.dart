@@ -65,8 +65,14 @@ class _OtpVerifyScreenState extends ConsumerState<OtpVerifyScreen> {
     if (!mounted) return;
     final state = ref.read(otpVerifyControllerProvider);
     state.whenOrNull(
-      data: (verified) {
-        if (verified) context.go(AppRoutes.dashboard);
+      data: (outcome) {
+        if (outcome == null) return;
+        if (outcome.loggedIn) {
+          context.go(AppRoutes.dashboard);
+        } else {
+          context.showSnack('Email verified! Please log in to continue.');
+          context.go(AppRoutes.login);
+        }
       },
       error: (error, _) {
         final failure = error is Failure ? error : null;

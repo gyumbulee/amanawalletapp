@@ -2,12 +2,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../features/airtime/presentation/screens/airtime_screen.dart';
 import '../features/auth/presentation/screens/forgot_password_screen.dart';
 import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/otp_verify_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/auth/presentation/screens/reset_password_screen.dart';
 import '../features/dashboard/presentation/screens/dashboard_screen.dart';
+import '../features/data_bundle/presentation/screens/data_screen.dart';
 import '../features/transactions/presentation/screens/transaction_detail_screen.dart';
 import '../features/transactions/presentation/screens/transactions_screen.dart';
 import '../features/virtual_account/presentation/screens/virtual_account_screen.dart';
@@ -116,11 +118,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.airtime,
-        builder: (context, state) => const ComingSoonScreen(featureName: 'Airtime'),
+        builder: (context, state) => const AirtimeScreen(),
       ),
       GoRoute(
         path: AppRoutes.dataBundle,
-        builder: (context, state) => const ComingSoonScreen(featureName: 'Data'),
+        builder: (context, state) => const DataScreen(),
       ),
       GoRoute(
         path: AppRoutes.electricity,

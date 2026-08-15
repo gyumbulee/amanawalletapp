@@ -1,12 +1,12 @@
 <?php
 
-namespace App\Http\Requests\Cable;
+namespace App\Http\Requests\Data;
 
-use App\Enums\CableProvider;
+use App\Enums\AirtimeNetwork;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rules\Enum;
 
-class PurchaseCableRequest extends FormRequest
+class PurchaseDataRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -16,10 +16,9 @@ class PurchaseCableRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'cable_provider' => ['required', new Enum(CableProvider::class)],
-            'smartcard_number' => ['required', 'string', 'min:8', 'max:20'],
-            'variation_code' => ['required', 'string'],
+            'network' => ['required', new Enum(AirtimeNetwork::class)],
             'phone' => ['required', 'string', 'digits_between:10,15'],
+            'variation_code' => ['required', 'string'],
             'pin' => ['required', 'string', 'digits:4'],
         ];
     }

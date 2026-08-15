@@ -32,9 +32,11 @@ class DataService
         return reset($providers)->listPlans($network);
     }
 
-    public function purchase(User $user, string $network, string $phone, string $variationCode): Transaction
+    public function purchase(User $user, string $network, string $phone, string $variationCode, string $pin): Transaction
     {
         $wallet = $user->wallet;
+
+        $this->walletService->verifyPin($wallet, $pin);
 
         // Look up the authoritative price server-side - never trust a client-sent amount.
         $plans = $this->listPlans($network);

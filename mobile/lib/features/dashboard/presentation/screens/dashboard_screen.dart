@@ -40,7 +40,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final accountAsync = ref.watch(virtualAccountProvider);
 
     return ResponsiveScaffold(
-      backgroundColor: AppColors.background,
       body: RefreshIndicator(
         onRefresh: () async {
           await ref.read(walletBalanceProvider.notifier).refresh();

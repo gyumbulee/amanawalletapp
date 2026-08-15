@@ -67,13 +67,26 @@ class AuthRepositoryImpl implements AuthRepository {
     }
   }
 
+  /// Returns null when the backend's verify-email endpoint only confirms
+  /// verification (no session issued) — the caller should send the user to
+  /// login in that case. Returns an [AuthResult] if the backend ever does
+  /// include a user/token here (auto-login on verify), so this stays
+  /// correct either way without another round of debugging.
   @override
-  Future<AuthResult> verifyOtp({required String email, required String otp}) async {
+  Future<AuthResult?> verifyOtp({required String email, required String otp}) async {
     try {
       final response = await _api.verifyOtp(email: email, otp: otp);
       final data = response.data as Map<String, dynamic>;
-      final user = AuthUserModel.fromJson(data['user'] as Map<String, dynamic>);
+      final userJson = data['user'];
       final token = data['token'] as String?;
+
+      if (userJson is! Map<String, dynamic>) {
+        // Backend confirmed verification but issued no session — expected
+        // shape is just `{ "message": "Email verified successfully." }`.
+        return null;
+      }
+
+      final user = AuthUserModel.fromJson(userJson);
       if (token != null) await _secureStorage.saveAuthToken(token);
       return AuthResult(user: user, token: token);
     } catch (e) {
