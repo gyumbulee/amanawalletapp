@@ -42,17 +42,13 @@ class CableService
         return reset($providers)->verifySmartcard($cableProvider, $smartcardNumber);
     }
 
-    public function purchase(
-        User $user,
-        string $cableProvider,
-        string $smartcardNumber,
-        string $variationCode,
-        string $phone
-    ): Transaction {
+    public function purchase(User $user, string $cableProvider, string $smartcardNumber, string $variationCode, string $phone, string $pin): Transaction
+    {
         $wallet = $user->wallet;
 
-        $plans = $this->listPlans($cableProvider);
+        $this->walletService->verifyPin($wallet, $pin);
 
+        $plans = $this->listPlans($cableProvider);
         $plan = collect($plans)->firstWhere('variation_code', $variationCode);
 
         if (! $plan) {
@@ -67,156 +63,81 @@ class CableService
             type: TransactionType::Cable,
             amount: $amount,
             description: "Cable TV subscription - {$cableProvider} - {$plan['name']} - {$smartcardNumber}",
-            meta: [
-                'cable_provider' => $cableProvider,
-                'smartcard_number' => $smartcardNumber,
-                'variation_code' => $variationCode,
-                'plan_name' => $plan['name'],
-            ],
+            meta: ['cable_provider' => $cableProvider, 'smartcard_number' => $smartcardNumber, 'variation_code' => $variationCode, 'plan_name' => $plan['name']],
         );
 
-        $this->walletService->debit(
-            $wallet,
-            $amount,
-            $transaction->reference,
-            'Cable TV subscription',
-            $transaction
-        );
-
+        $this->walletService->debit($wallet, $amount, $transaction->reference, 'Cable TV subscription', $transaction);
         $this->transactionService->markProcessing($transaction);
 
         $providers = $this->providerResolver->resolve();
-
         $lastError = null;
 
-        try {
+        foreach ($providers as $slug => $provider) {
+            $startedAt = microtime(true);
+            $requestPayload = ['cable_provider' => $cableProvider, 'smartcard_number' => $smartcardNumber, 'variation_code' => $variationCode, 'amount' => $amount, 'reference' => $transaction->reference];
 
-            foreach ($providers as $slug => $provider) {
+            try {
+                $result = $provider->subscribe($cableProvider, $smartcardNumber, $variationCode, $amount, $phone, $transaction->reference);
+                $status = $result['status'] ?? 'delivered';
 
-                $startedAt = microtime(true);
+                $this->providerLogService->log(
+                    provider: $slug,
+                    serviceType: 'cable',
+                    requestReference: $transaction->reference,
+                    transactionReference: $transaction->reference,
+                    requestPayload: $requestPayload,
+                    responsePayload: $result,
+                    status: ProviderLogStatus::Success,
+                    errorMessage: null,
+                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
+                );
 
-                $requestPayload = [
-                    'cable_provider' => $cableProvider,
-                    'smartcard_number' => $smartcardNumber,
-                    'variation_code' => $variationCode,
-                    'amount' => $amount,
-                    'reference' => $transaction->reference,
-                ];
+                $meta = $transaction->meta ?? [];
+                $meta['customer_name'] = $result['customer_name'] ?? null;
+                $transaction->update(['meta' => $meta]);
 
-                try {
-
-                    $result = $provider->subscribe(
-                        $cableProvider,
-                        $smartcardNumber,
-                        $variationCode,
-                        $amount,
-                        $phone,
-                        $transaction->reference
-                    );
-
-                    $status = strtolower($result['status'] ?? 'delivered');
-
-                    $this->providerLogService->log(
-                        provider: $slug,
-                        serviceType: 'cable',
-                        requestReference: $transaction->reference,
-                        transactionReference: $transaction->reference,
-                        requestPayload: $requestPayload,
-                        responsePayload: $result,
-                        status: ProviderLogStatus::Success,
-                        errorMessage: null,
-                        durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-                    );
-
-                    switch ($status) {
-
-                        case 'delivered':
-                        case 'success':
-                        case 'successful':
-
-                            $transaction->update([
-                                'provider' => $slug,
-                            ]);
-
-                            return $this->confirmationService->confirm(
-                                $transaction->reference,
-                                'delivered',
-                                $result['provider_reference'] ?? null
-                            );
-
-                        case 'pending':
-
-                            $transaction->update([
-                                'provider' => $slug,
-                            ]);
-
-                            return $transaction;
-
-                        default:
-
-                            throw new RuntimeException(
-                                "Provider returned unexpected status: {$status}"
-                            );
-                    }
-
-                } catch (Throwable $e) {
-
-                    $lastError = $e;
-
-                    $this->providerLogService->log(
-                        provider: $slug,
-                        serviceType: 'cable',
-                        requestReference: $transaction->reference,
-                        transactionReference: $transaction->reference,
-                        requestPayload: $requestPayload,
-                        responsePayload: method_exists($e, 'response')
-                            ? $e->response?->json()
-                            : null,
-                        status: ProviderLogStatus::Failed,
-                        errorMessage: $e->getMessage(),
-                        durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-                    );
-
-                    continue;
+                if ($status === 'pending') {
+                    return $transaction;
                 }
-            }
 
-            $this->walletService->credit(
-                $wallet,
-                $amount,
-                $transaction->reference . '-REVERSAL',
-                'Reversal: cable TV subscription failed on all providers',
-                $transaction
-            );
+                if ($status !== 'delivered') {
+                    throw new RuntimeException("Provider returned unexpected status: {$status}");
+                }
 
-            $this->transactionService->markFailed(
-                $transaction,
-                $lastError?->getMessage() ?? 'All cable TV providers failed.'
-            );
+                return $this->confirmationService->confirm(
+                    $transaction->reference,
+                    'delivered',
+                    $result['provider_reference'] ?? null
+                );
+            } catch (Throwable $e) {
+                $lastError = $e;
 
-            throw new RuntimeException(
-                'Cable TV subscription failed. Your wallet has been refunded.'
-            );
-
-        } finally {
-
-            $transaction->refresh();
-
-            if ($transaction->status === 'processing') {
-
-                $this->walletService->credit(
-                    $wallet,
-                    $amount,
-                    $transaction->reference . '-AUTO-REVERSAL',
-                    'Automatic reversal after interrupted cable purchase',
-                    $transaction
+                $this->providerLogService->log(
+                    provider: $slug,
+                    serviceType: 'cable',
+                    requestReference: $transaction->reference,
+                    transactionReference: $transaction->reference,
+                    requestPayload: $requestPayload,
+                    responsePayload: null,
+                    status: ProviderLogStatus::Failed,
+                    errorMessage: $e->getMessage(),
+                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
                 );
 
-                $this->transactionService->markFailed(
-                    $transaction,
-                    'Interrupted while contacting provider.'
-                );
+                continue;
             }
         }
+
+        $this->walletService->credit(
+            $wallet,
+            $amount,
+            $transaction->reference . '-REVERSAL',
+            'Reversal: cable TV subscription failed on all providers',
+            $transaction
+        );
+
+        $this->transactionService->markFailed($transaction, $lastError?->getMessage() ?? 'All cable TV providers failed.');
+
+        throw new RuntimeException('Cable TV subscription failed. Your wallet has been refunded.');
     }
 }

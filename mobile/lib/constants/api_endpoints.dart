@@ -7,7 +7,7 @@ class ApiEndpoints {
   static const register = '/auth/register';
   static const login = '/auth/login';
   static const logout = '/auth/logout';
-  static const verifyOtp = '/auth/verify-email';
+  static const verifyOtp = '/auth/verify-otp';
   static const resendOtp = '/auth/resend-otp';
   static const forgotPassword = '/auth/forgot-password';
   static const resetPassword = '/auth/reset-password';
@@ -35,9 +35,14 @@ class ApiEndpoints {
   static const airtimePurchase = '/airtime/purchase';
   static const dataPurchase = '/data/purchase';
   static const dataPlans = '/data/plans';
-  static const electricityValidate = '/electricity/validate';
+  static const electricityValidate = '/electricity/verify-meter';
   static const electricityPurchase = '/electricity/purchase';
-  static const cableValidate = '/cable/validate';
+  static const cablePlans = '/cable/plans';
+  // NOTE: electricityValidate was actually '/electricity/verify-meter', not
+  // '/electricity/validate' as first assumed — the naming convention here
+  // is a guess following that same pattern. Check the real route if this
+  // 404s (same fix as electricity: paste the 404 response back).
+  static const cableValidate = '/cable/verify-smartcard';
   static const cablePurchase = '/cable/purchase';
   static const educationValidate = '/education/validate';
   static const educationPurchase = '/education/purchase';

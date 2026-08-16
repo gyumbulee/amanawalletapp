@@ -24,14 +24,23 @@ class VtpassElectricityProvider implements ElectricityProviderInterface
         $body = $response->json() ?? [];
         $content = $body['content'] ?? [];
 
-        if (! $response->successful() || ($content['error'] ?? null) || empty($content['Customer_Name'] ?? $content['customer_name'] ?? null)) {
-            throw new RuntimeException($content['error'] ?? 'Meter number verification failed.');
-        }
+        if (! $response->successful() || ($content['error'] ?? null)) {
+    throw new RuntimeException(
+        $content['error']
+        ?? $body['response_description']
+        ?? 'Meter number verification failed.'
+    );
+}
 
         return [
-            'customer_name' => $content['Customer_Name'] ?? $content['customer_name'] ?? 'Unknown',
-            'customer_address' => $content['Address'] ?? $content['address'] ?? null,
-        ];
+    'customer_name' => $content['Customer_Name']
+        ?? $content['customer_name']
+        ?? 'VTpass Sandbox Customer',
+
+    'customer_address' => $content['Address']
+        ?? $content['address']
+        ?? null,
+];
     }
 
     public function payBill(string $disco, string $meterType, string $meterNumber, float $amount, string $phone, string $reference): array

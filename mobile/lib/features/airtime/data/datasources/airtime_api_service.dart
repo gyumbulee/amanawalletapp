@@ -14,7 +14,9 @@ class AirtimeApiService {
     return _dio.post(ApiEndpoints.airtimePurchase, data: {
       'network': network,
       'phone': phone,
-      'amount': amountKobo,
+      // Backend expects amount in plain Naira, not kobo — same fix as
+      // electricity. Rounded (not truncated) in case of decimal input.
+      'amount': (amountKobo / 100).round(),
       'pin': transactionPin,
     });
   }

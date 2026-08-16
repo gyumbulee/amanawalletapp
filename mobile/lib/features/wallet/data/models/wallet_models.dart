@@ -3,18 +3,24 @@ import '../../domain/entities/wallet_ledger_entry.dart';
 
 /// JSON <-> [WalletBalance] mapping.
 ///
-/// Assumes `GET /wallet/balance` returns:
-/// `{ "balance": 150000, "currency": "NGN" }` with balance in kobo.
-/// If your backend returns balance as a decimal Naira string instead,
-/// convert here (e.g. `(double.parse(json['balance']) * 100).round()`).
+/// Actual `GET /wallet` response, wrapped under `"wallet"` (unwrapping
+/// happens in the repository):
+/// `{ "id": "...", "balance": 2000, "currency": "NGN", "status": "active",
+///    "has_pin": false, "created_at": "..." }`
+/// `balance` is plain Naira (not kobo) — same convention as the data plan
+/// `amount` field — so this converts to kobo for internal use.
 class WalletBalanceModel {
   static WalletBalance fromJson(Map<String, dynamic> json) {
-    final raw = json['balance'];
-    final balanceKobo = raw is int ? raw : int.tryParse(raw.toString()) ?? 0;
     return WalletBalance(
-      balanceKobo: balanceKobo,
+      balanceKobo: _nairaToKobo(json['balance']),
       currency: json['currency'] as String? ?? 'NGN',
     );
+  }
+
+  static int _nairaToKobo(dynamic raw) {
+    if (raw == null) return 0;
+    final naira = raw is num ? raw : num.tryParse(raw.toString()) ?? 0;
+    return (naira * 100).round();
   }
 }
 

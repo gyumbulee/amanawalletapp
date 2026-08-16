@@ -41,6 +41,14 @@ class OtpInput extends StatelessWidget {
         inactiveFillColor: AppColors.surface,
       ),
       enableActiveFill: true,
+      // Same fixed-light-box reasoning as PinInput — force a fixed dark
+      // digit color instead of inheriting the ambient (theme-following)
+      // text color.
+      textStyle: const TextStyle(
+        color: AppColors.textPrimary,
+        fontSize: 18,
+        fontWeight: FontWeight.w600,
+      ),
       onChanged: onChanged ?? (_) {},
       onCompleted: onCompleted,
     );

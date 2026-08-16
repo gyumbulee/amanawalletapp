@@ -15,8 +15,12 @@ class WalletRepositoryImpl implements WalletRepository {
     try {
       final response = await _api.getBalance();
       final data = response.data as Map<String, dynamic>;
-      // Support both a flat response and one wrapped in "data".
-      final payload = data['data'] is Map ? data['data'] as Map<String, dynamic> : data;
+      // Backend wraps the payload under "wallet". Also accept a generic
+      // "data" wrapper or a flat body, same defensive pattern used
+      // elsewhere (virtual account, transactions).
+      final payload = data['wallet'] is Map
+          ? data['wallet'] as Map<String, dynamic>
+          : (data['data'] is Map ? data['data'] as Map<String, dynamic> : data);
       return WalletBalanceModel.fromJson(payload);
     } catch (e) {
       throw ErrorMapper.map(e);

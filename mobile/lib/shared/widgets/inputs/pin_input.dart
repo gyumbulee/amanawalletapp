@@ -45,6 +45,15 @@ class PinInput extends StatelessWidget {
         inactiveFillColor: AppColors.surface,
       ),
       enableActiveFill: true,
+      // The box fill above is permanently light (doesn't flip with dark
+      // mode), so the entered digit must stay a fixed dark color too —
+      // otherwise it inherits the ambient theme text color and goes
+      // white-on-white in dark mode, same root cause as the confirm sheet.
+      textStyle: const TextStyle(
+        color: AppColors.textPrimary,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+      ),
       onChanged: onChanged ?? (_) {},
       onCompleted: onCompleted,
     );

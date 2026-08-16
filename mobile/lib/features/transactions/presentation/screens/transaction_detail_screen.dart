@@ -38,6 +38,10 @@ class TransactionDetailScreen extends ConsumerWidget {
           final isCredit = transaction.isCredit;
           final color = isCredit ? AppColors.success : AppColors.primary;
           final sign = isCredit ? '+' : '-';
+          // Pulled explicitly (rather than left unset) so this always
+          // matches the active theme's text color instead of depending on
+          // ambient inheritance, which wasn't resolving reliably here.
+          final valueColor = Theme.of(context).textTheme.bodyMedium?.color;
 
           return SingleChildScrollView(
             child: Column(
@@ -56,7 +60,7 @@ class TransactionDetailScreen extends ConsumerWidget {
                       const SizedBox(height: 16),
                       Text(
                         '$sign${transaction.amountKobo.toNairaDisplay()}',
-                        style: const TextStyle(fontSize: 28, fontWeight: FontWeight.w700),
+                        style: TextStyle(fontSize: 28, fontWeight: FontWeight.w700, color: valueColor),
                       ),
                       const SizedBox(height: 8),
                       StatusBadge(status: transaction.status),
@@ -67,26 +71,26 @@ class TransactionDetailScreen extends ConsumerWidget {
                 AppCard(
                   child: Column(
                     children: [
-                      _row('Service', transaction.service.label),
+                      _row('Service', transaction.service.label, valueColor),
                       const Divider(height: 24),
-                      _row('Description', transaction.description),
+                      _row('Description', transaction.description, valueColor),
                       if (transaction.recipient != null) ...[
                         const Divider(height: 24),
-                        _row('Recipient', transaction.recipient!),
+                        _row('Recipient', transaction.recipient!, valueColor),
                       ],
                       const Divider(height: 24),
-                      _row('Amount', transaction.amountKobo.toNairaDisplay()),
+                      _row('Amount', transaction.amountKobo.toNairaDisplay(), valueColor),
                       if (transaction.feeKobo > 0) ...[
                         const Divider(height: 24),
-                        _row('Fee', transaction.feeKobo.toNairaDisplay()),
+                        _row('Fee', transaction.feeKobo.toNairaDisplay(), valueColor),
                         const Divider(height: 24),
-                        _row('Total', transaction.totalKobo.toNairaDisplay()),
+                        _row('Total', transaction.totalKobo.toNairaDisplay(), valueColor),
                       ],
                       const Divider(height: 24),
-                      _row('Date', DateFormat('MMM d, y • h:mm a').format(transaction.createdAt)),
+                      _row('Date', DateFormat('MMM d, y • h:mm a').format(transaction.createdAt), valueColor),
                       if (transaction.narration != null) ...[
                         const Divider(height: 24),
-                        _row('Narration', transaction.narration!),
+                        _row('Narration', transaction.narration!, valueColor),
                       ],
                       const Divider(height: 24),
                       Row(
@@ -103,7 +107,7 @@ class TransactionDetailScreen extends ConsumerWidget {
                                 Expanded(
                                   child: Text(
                                     transaction.reference,
-                                    style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: valueColor),
                                   ),
                                 ),
                                 InkWell(
@@ -140,7 +144,7 @@ class TransactionDetailScreen extends ConsumerWidget {
     );
   }
 
-  Widget _row(String label, String value) {
+  Widget _row(String label, String value, Color? valueColor) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -152,7 +156,7 @@ class TransactionDetailScreen extends ConsumerWidget {
           flex: 3,
           child: Text(
             value,
-            style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+            style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500, color: valueColor),
             textAlign: TextAlign.right,
           ),
         ),

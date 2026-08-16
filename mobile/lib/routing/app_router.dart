@@ -8,8 +8,10 @@ import '../features/auth/presentation/screens/login_screen.dart';
 import '../features/auth/presentation/screens/otp_verify_screen.dart';
 import '../features/auth/presentation/screens/register_screen.dart';
 import '../features/auth/presentation/screens/reset_password_screen.dart';
+import '../features/cable/presentation/screens/cable_screen.dart';
 import '../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../features/data_bundle/presentation/screens/data_screen.dart';
+import '../features/electricity/presentation/screens/electricity_screen.dart';
 import '../features/transactions/presentation/screens/transaction_detail_screen.dart';
 import '../features/transactions/presentation/screens/transactions_screen.dart';
 import '../features/virtual_account/presentation/screens/virtual_account_screen.dart';
@@ -126,11 +128,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.electricity,
-        builder: (context, state) => const ComingSoonScreen(featureName: 'Electricity'),
+        builder: (context, state) => const ElectricityScreen(),
       ),
       GoRoute(
         path: AppRoutes.cable,
-        builder: (context, state) => const ComingSoonScreen(featureName: 'Cable TV'),
+        builder: (context, state) => const CableScreen(),
       ),
       GoRoute(
         path: AppRoutes.education,

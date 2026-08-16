@@ -35,9 +35,11 @@ class ElectricityService
         return reset($providers)->verifyMeter($disco, $meterNumber, $meterType);
     }
 
-    public function purchase(User $user, string $disco, string $meterNumber, string $meterType, float $amount, string $phone): Transaction
+    public function purchase(User $user, string $disco, string $meterNumber, string $meterType, float $amount, string $phone, string $pin): Transaction
     {
         $wallet = $user->wallet;
+
+        $this->walletService->verifyPin($wallet, $pin);
 
         $transaction = $this->transactionService->initiate(
             user: $user,
