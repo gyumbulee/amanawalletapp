@@ -18,7 +18,9 @@ class TransactionRepositoryImpl implements TransactionRepository {
     try {
       final response = await _api.getTransactions(page: page, filterParams: filter.toQueryParams());
       final data = response.data as Map<String, dynamic>;
-      final rawList = (data['data'] as List?) ?? const [];
+      // List wraps under "transactions", not "data" — confirmed from a
+      // real response, same defensive fallback pattern used elsewhere.
+      final rawList = (data['transactions'] ?? data['data']) as List? ?? const [];
       final items = rawList.map((e) => TransactionModel.fromJson(e as Map<String, dynamic>)).toList();
 
       final meta = data['meta'] as Map<String, dynamic>?;
@@ -37,7 +39,9 @@ class TransactionRepositoryImpl implements TransactionRepository {
     try {
       final response = await _api.getTransactionDetail(reference);
       final data = response.data as Map<String, dynamic>;
-      final payload = data['data'] is Map ? data['data'] as Map<String, dynamic> : data;
+      final payload = data['transaction'] is Map
+          ? data['transaction'] as Map<String, dynamic>
+          : (data['data'] is Map ? data['data'] as Map<String, dynamic> : data);
       return TransactionModel.fromJson(payload);
     } catch (e) {
       throw ErrorMapper.map(e);

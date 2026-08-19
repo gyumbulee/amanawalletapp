@@ -8,8 +8,10 @@ import '../../../../shared/widgets/cards/wallet_card.dart';
 import '../../../../shared/widgets/empty_states/empty_state.dart';
 import '../../../../shared/widgets/loaders/skeleton_loader.dart';
 import '../../../../shared/widgets/responsive_scaffold.dart';
+import '../../../../shared/widgets/whatsapp_contact_button.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../auth/presentation/providers/auth_session_provider.dart';
+import '../../../notifications/presentation/providers/unread_count_provider.dart';
 import '../../../transactions/presentation/providers/transaction_list_provider.dart';
 import '../../../transactions/presentation/widgets/transaction_list_tile.dart';
 import '../../../virtual_account/presentation/providers/virtual_account_provider.dart';
@@ -50,12 +52,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           children: [
             Row(
               children: [
-                CircleAvatar(
-                  radius: 22,
-                  backgroundColor: AppColors.primary,
-                  child: Text(
-                    (user?.name ?? '').initials,
-                    style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                InkWell(
+                  onTap: () => context.push(AppRoutes.profile),
+                  customBorder: const CircleBorder(),
+                  child: CircleAvatar(
+                    radius: 22,
+                    backgroundColor: AppColors.primary,
+                    backgroundImage: user?.avatarUrl != null ? NetworkImage(user!.avatarUrl!) : null,
+                    child: user?.avatarUrl == null
+                        ? Text(
+                            (user?.name ?? '').initials,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                          )
+                        : null,
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -71,10 +80,32 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ],
                   ),
                 ),
-                IconButton(
-                  onPressed: () => context.push(AppRoutes.notifications),
-                  icon: const Icon(Icons.notifications_outlined),
+                Consumer(
+                  builder: (context, ref, _) {
+                    final unreadAsync = ref.watch(unreadNotificationCountProvider);
+                    final unreadCount = unreadAsync.asData?.value ?? 0;
+                    return Stack(
+                      clipBehavior: Clip.none,
+                      children: [
+                        IconButton(
+                          onPressed: () => context.push(AppRoutes.notifications),
+                          icon: const Icon(Icons.notifications_outlined),
+                        ),
+                        if (unreadCount > 0)
+                          Positioned(
+                            right: 6,
+                            top: 6,
+                            child: Container(
+                              height: 8,
+                              width: 8,
+                              decoration: const BoxDecoration(color: AppColors.error, shape: BoxShape.circle),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
                 ),
+                const WhatsappContactButton(phoneNumber: '09066772894'),
               ],
             ),
             const SizedBox(height: 20),

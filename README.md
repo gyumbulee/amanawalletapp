@@ -1,6 +1,6 @@
 $body = @{
-    login = "tunde2@example.com"
-    password = "password123"
+    login = "knowledgevistanet@gmail.com"
+    password = "123456qw"
 } | ConvertTo-Json
 
 $response = Invoke-RestMethod `
@@ -16,14 +16,14 @@ $response | ConvertTo-Json -Depth 5
 curl.exe -X POST "http://127.0.0.1:8000/api/v1/airtime/purchase" `
   -H "Content-Type: application/json" `
   -H "Accept: application/json" `
-  -H "Authorization: Bearer 16|F6wMfTiYNBPJ4g5TG1QZ6s8jhVDf6LmCzybasxn7341157ae" `
-  -d '{\"network\":\"mtn\",\"phone\":\"08011111111\",\"amount\":50}'
+  -H "Authorization: Bearer 37|qVwGVEsYKa8r4hn0QLj3N4K4BATHlop5vjYplk5Yc55b22ee" `
+  -d '{\"network\":\"mtn\",\"phone\":\"08011111111\",\"amount\":1000}'
 
 curl.exe -X POST "http://127.0.0.1:8000/api/v1/airtime/purchase" `
   -H "Content-Type: application/json" `
   -H "Accept: application/json" `
-  -H "Authorization: Bearer 16|F6wMfTiYNBPJ4g5TG1QZ6s8jhVDf6LmCzybasxn7341157ae" `
-  -d '{\"network\":\"mtn\",\"phone\":\"08011111111\",\"amount\":100,\"pin\":\"1234\"}'
+  -H "Authorization: Bearer 38|oRHwSlBQ9jK5zoMDoqNlZwXDxQMD2KiOy9FDXaun6c0992d2" `
+  -d '{\"network\":\"mtn\",\"phone\":\"08011111111\",\"amount\":100,\"pin\":\"8810\"}'
 
 
   curl.exe -X POST "http://127.0.0.1:8000/api/v1/auth/register" `

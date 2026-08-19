@@ -11,13 +11,21 @@ import '../features/auth/presentation/screens/reset_password_screen.dart';
 import '../features/cable/presentation/screens/cable_screen.dart';
 import '../features/dashboard/presentation/screens/dashboard_screen.dart';
 import '../features/data_bundle/presentation/screens/data_screen.dart';
+import '../features/education/presentation/screens/education_screen.dart';
 import '../features/electricity/presentation/screens/electricity_screen.dart';
+import '../features/notifications/presentation/screens/notifications_screen.dart';
+import '../features/profile/presentation/screens/change_password_screen.dart';
+import '../features/profile/presentation/screens/edit_profile_screen.dart';
+import '../features/profile/presentation/screens/profile_screen.dart';
+import '../features/profile/presentation/screens/set_pin_screen.dart';
+import '../features/profile/presentation/screens/verify_bvn_screen.dart';
+import '../features/referral/presentation/screens/referral_screen.dart';
+import '../features/settings/presentation/screens/settings_screen.dart';
 import '../features/transactions/presentation/screens/transaction_detail_screen.dart';
 import '../features/transactions/presentation/screens/transactions_screen.dart';
 import '../features/virtual_account/presentation/screens/virtual_account_screen.dart';
 import '../features/wallet/presentation/screens/wallet_screen.dart';
 import '../providers/global_providers.dart';
-import '../shared/widgets/empty_states/coming_soon_screen.dart';
 import 'route_guards.dart';
 
 /// Named route paths — reference these instead of hardcoding strings when
@@ -45,6 +53,10 @@ class AppRoutes {
   static const referral = '/referral';
   static const notifications = '/notifications';
   static const profile = '/profile';
+  static const editProfile = '/profile/edit';
+  static const changePassword = '/profile/change-password';
+  static const setPin = '/profile/set-pin';
+  static const verifyBvn = '/profile/verify-bvn';
   static const settings = '/settings';
 }
 
@@ -136,23 +148,41 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       ),
       GoRoute(
         path: AppRoutes.education,
-        builder: (context, state) => const ComingSoonScreen(featureName: 'Education'),
+        builder: (context, state) => const EducationScreen(),
       ),
       GoRoute(
         path: AppRoutes.referral,
-        builder: (context, state) => const ComingSoonScreen(featureName: 'Referral'),
+        builder: (context, state) => const ReferralScreen(),
       ),
       GoRoute(
         path: AppRoutes.notifications,
-        builder: (context, state) => const ComingSoonScreen(featureName: 'Notifications'),
+        builder: (context, state) => const NotificationsScreen(),
       ),
       GoRoute(
         path: AppRoutes.profile,
-        builder: (context, state) => const ComingSoonScreen(featureName: 'Profile'),
+        builder: (context, state) => const ProfileScreen(),
+        routes: [
+          GoRoute(
+            path: 'edit',
+            builder: (context, state) => const EditProfileScreen(),
+          ),
+          GoRoute(
+            path: 'change-password',
+            builder: (context, state) => const ChangePasswordScreen(),
+          ),
+          GoRoute(
+            path: 'set-pin',
+            builder: (context, state) => const SetPinScreen(),
+          ),
+          GoRoute(
+            path: 'verify-bvn',
+            builder: (context, state) => const VerifyBvnScreen(),
+          ),
+        ],
       ),
       GoRoute(
         path: AppRoutes.settings,
-        builder: (context, state) => const ComingSoonScreen(featureName: 'Settings'),
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
   );

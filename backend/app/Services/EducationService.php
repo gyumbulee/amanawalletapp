@@ -31,7 +31,7 @@ class EducationService
         return reset($providers)->listPlans($educationType);
     }
 
-    public function verifyProfile(string $educationType, string $profileId, string $variationCode): array
+    public function verifyProfile(string $educationType, string $profileId): array
     {
         $providers = $this->providerResolver->resolve();
 
@@ -39,12 +39,14 @@ class EducationService
             throw new RuntimeException('No active education providers are configured.');
         }
 
-        return reset($providers)->verifyProfile($educationType, $profileId, $variationCode);
+        return reset($providers)->verifyProfile($educationType, $profileId);
     }
 
-    public function purchase(User $user, string $educationType, string $variationCode, string $phone, ?string $profileId): Transaction
+    public function purchase(User $user, string $educationType, string $variationCode, string $phone, ?string $profileId, string $pin): Transaction
     {
         $wallet = $user->wallet;
+
+        $this->walletService->verifyPin($wallet, $pin);
 
         $plans = $this->listPlans($educationType);
         $plan = collect($plans)->firstWhere('variation_code', $variationCode);
@@ -72,14 +74,7 @@ class EducationService
 
         foreach ($providers as $slug => $provider) {
             $startedAt = microtime(true);
-            $requestPayload = [
-    'education_type' => $educationType,
-    'variation_code' => $variationCode,
-    'amount' => $amount,
-    'phone' => $phone,
-    'profile_id' => $profileId,
-    'reference' => $transaction->reference,
-];
+            $requestPayload = ['education_type' => $educationType, 'variation_code' => $variationCode, 'amount' => $amount, 'phone' => $phone, 'reference' => $transaction->reference];
 
             try {
                 $result = $provider->purchase($educationType, $variationCode, $amount, $phone, $profileId, $transaction->reference);
@@ -116,24 +111,22 @@ class EducationService
                     $result['provider_reference'] ?? null
                 );
             } catch (Throwable $e) {
-    $lastError = $e;
+                $lastError = $e;
 
-    $this->providerLogService->log(
-        provider: $slug,
-        serviceType: 'education',
-        requestReference: $transaction->reference,
-        transactionReference: $transaction->reference,
-        requestPayload: $requestPayload,
-        responsePayload: method_exists($e, 'response')
-            ? $e->response?->json()
-            : null,
-        status: ProviderLogStatus::Failed,
-        errorMessage: $e->getMessage(),
-        durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-    );
+                $this->providerLogService->log(
+                    provider: $slug,
+                    serviceType: 'education',
+                    requestReference: $transaction->reference,
+                    transactionReference: $transaction->reference,
+                    requestPayload: $requestPayload,
+                    responsePayload: null,
+                    status: ProviderLogStatus::Failed,
+                    errorMessage: $e->getMessage(),
+                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
+                );
 
-    continue;
-}
+                continue;
+            }
         }
 
         $this->walletService->credit(
