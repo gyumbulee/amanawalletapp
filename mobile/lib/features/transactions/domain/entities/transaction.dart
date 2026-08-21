@@ -126,6 +126,7 @@ enum TransactionStatus {
 
 class Transaction extends Equatable {
   const Transaction({
+    required this.id,
     required this.reference,
     required this.service,
     required this.status,
@@ -138,6 +139,9 @@ class Transaction extends Equatable {
     this.providerReference,
   });
 
+  /// UUID primary key — this, not [reference], is what
+  /// `GET /transactions/{id}` actually looks up by.
+  final String id;
   final String reference;
   final TransactionService service;
   final TransactionStatus status;
@@ -154,6 +158,7 @@ class Transaction extends Equatable {
 
   @override
   List<Object?> get props => [
+        id,
         reference,
         service,
         status,

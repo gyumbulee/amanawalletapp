@@ -216,7 +216,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           TransactionListTile(
                             transaction: transaction,
                             onTap: () => context.push(
-                              AppRoutes.transactionDetail(transaction.reference),
+                              AppRoutes.transactionDetail(transaction.id),
                             ),
                           ),
                       ],

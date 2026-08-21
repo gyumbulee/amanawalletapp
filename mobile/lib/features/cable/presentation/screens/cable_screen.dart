@@ -135,7 +135,7 @@ class _CableScreenState extends ConsumerState<CableScreen> {
             Navigator.of(context).pop();
             ref.read(cablePurchaseControllerProvider.notifier).reset();
             context.showSnack('Cable subscription successful');
-            context.pushReplacement(AppRoutes.transactionDetail(transaction.reference));
+            context.pushReplacement(AppRoutes.transactionDetail(transaction.id));
           },
           error: (error, _) {
             final failure = error is Failure ? error : null;

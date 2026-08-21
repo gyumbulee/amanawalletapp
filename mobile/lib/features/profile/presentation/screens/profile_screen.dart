@@ -11,6 +11,7 @@ import '../../../../shared/widgets/loaders/app_spinner.dart';
 import '../../../../shared/widgets/responsive_scaffold.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../auth/presentation/providers/logout_controller.dart';
+import '../../../wallet/presentation/providers/wallet_balance_provider.dart';
 import '../providers/profile_controller.dart';
 import '../providers/upload_photo_controller.dart';
 import '../widgets/profile_menu_item.dart';
@@ -64,6 +65,9 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
   Widget build(BuildContext context) {
     final profileAsync = ref.watch(profileControllerProvider);
     final uploadState = ref.watch(uploadPhotoControllerProvider);
+    // hasTransactionPin lives on the wallet record on the backend, not the
+    // user — sourced from here rather than AuthUser.hasTransactionPin.
+    final hasPin = ref.watch(walletBalanceProvider).value?.hasPin ?? false;
 
     return ResponsiveScaffold(
       appBar: AppBar(title: const Text('Profile')),
@@ -134,7 +138,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       alignment: WrapAlignment.center,
                       children: [
                         _StatusChip(label: 'BVN', verified: user.isBvnVerified),
-                        _StatusChip(label: 'Transaction PIN', verified: user.hasTransactionPin),
+                        _StatusChip(label: 'Transaction PIN', verified: hasPin),
                       ],
                     ),
                   ],
@@ -156,7 +160,7 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
               const Divider(height: 1),
               ProfileMenuItem(
                 icon: Icons.pin_outlined,
-                label: user.hasTransactionPin ? 'Change Transaction PIN' : 'Set Transaction PIN',
+                label: hasPin ? 'Change Transaction PIN' : 'Set Transaction PIN',
                 onTap: () => context.push(AppRoutes.setPin),
               ),
               if (!user.isBvnVerified) ...[

@@ -14,6 +14,7 @@ class WalletBalanceModel {
     return WalletBalance(
       balanceKobo: _nairaToKobo(json['balance']),
       currency: json['currency'] as String? ?? 'NGN',
+      hasPin: json['has_pin'] as bool? ?? false,
     );
   }
 

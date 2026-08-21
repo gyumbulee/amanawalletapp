@@ -92,7 +92,7 @@ class _DataScreenState extends ConsumerState<DataScreen> {
             Navigator.of(context).pop();
             ref.read(dataPurchaseControllerProvider.notifier).reset();
             context.showSnack('Data purchase successful');
-            context.pushReplacement(AppRoutes.transactionDetail(transaction.reference));
+            context.pushReplacement(AppRoutes.transactionDetail(transaction.id));
           },
           error: (error, _) {
             final failure = error is Failure ? error : null;

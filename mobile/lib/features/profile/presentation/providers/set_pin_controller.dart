@@ -1,5 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../../auth/presentation/providers/auth_session_provider.dart';
+import '../../../wallet/presentation/providers/wallet_balance_provider.dart';
 import 'profile_repository_provider.dart';
 
 class SetPinController extends AsyncNotifier<bool> {
@@ -11,10 +11,10 @@ class SetPinController extends AsyncNotifier<bool> {
     final repo = ref.read(profileRepositoryProvider);
     state = await AsyncValue.guard(() async {
       await repo.setTransactionPin(pin: pin, pinConfirmation: pinConfirmation);
-      // Reflect immediately in the session so any screen checking
-      // hasTransactionPin (e.g. gating a purchase flow later) sees it
-      // without needing a full profile refetch.
-      ref.read(authSessionProvider.notifier).updateUser((u) => u.copyWith(hasTransactionPin: true));
+      // hasPin lives on the wallet record on the backend, not the user —
+      // refresh the wallet so the Profile screen's status reflects the
+      // real value rather than an optimistic guess on AuthUser.
+      await ref.read(walletBalanceProvider.notifier).refresh();
       return true;
     });
   }

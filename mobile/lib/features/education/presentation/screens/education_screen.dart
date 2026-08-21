@@ -169,7 +169,7 @@ class _EducationScreenState extends ConsumerState<EducationScreen> {
             Navigator.of(context).pop();
             ref.read(educationPurchaseControllerProvider.notifier).reset();
             context.showSnack('Education PIN purchase successful');
-            context.pushReplacement(AppRoutes.transactionDetail(transaction.reference));
+            context.pushReplacement(AppRoutes.transactionDetail(transaction.id));
           },
           error: (error, _) {
             final failure = error is Failure ? error : null;

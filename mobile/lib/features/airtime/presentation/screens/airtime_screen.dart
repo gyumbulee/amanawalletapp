@@ -97,7 +97,7 @@ class _AirtimeScreenState extends ConsumerState<AirtimeScreen> {
             Navigator.of(context).pop(); // close the PIN sheet
             ref.read(airtimePurchaseControllerProvider.notifier).reset();
             context.showSnack('Airtime purchase successful');
-            context.pushReplacement(AppRoutes.transactionDetail(transaction.reference));
+            context.pushReplacement(AppRoutes.transactionDetail(transaction.id));
           },
           error: (error, _) {
             final failure = error is Failure ? error : null;

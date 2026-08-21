@@ -38,7 +38,7 @@ class EnvConfig {
       case Env.dev:
         return const String.fromEnvironment(
           'API_BASE_URL',
-          defaultValue: 'http://192.168.22.156:8000/api/v1',
+          defaultValue: 'http://192.168.63.156:8000/api/v1',
         );
       case Env.staging:
         return const String.fromEnvironment(

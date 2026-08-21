@@ -147,7 +147,7 @@ class _TransactionsScreenState extends ConsumerState<TransactionsScreen> {
                       return TransactionListTile(
                         transaction: transaction,
                         onTap: () => context.push(
-                          AppRoutes.transactionDetail(transaction.reference),
+                          AppRoutes.transactionDetail(transaction.id),
                         ),
                       );
                     },
