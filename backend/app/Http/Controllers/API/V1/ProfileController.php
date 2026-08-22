@@ -13,6 +13,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 
 class ProfileController extends Controller
@@ -105,5 +106,19 @@ class ProfileController extends Controller
             'message' => 'Profile photo uploaded successfully.',
             'profile_photo_url' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
         ]);
+    }
+
+    public function showPhoto(string $filename)
+    {
+        $filename = basename($filename);
+        $path = 'profile-photos/' . $filename;
+
+        if (! Storage::disk('public')->exists($path)) {
+            abort(404);
+        }
+
+        return response()->file(
+            Storage::disk('public')->path($path)
+        );
     }
 }

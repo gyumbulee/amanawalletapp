@@ -1,4 +1,6 @@
+import 'dart:typed_data';
 import '../../../../core/network/error_mapper.dart';
+import '../../../../core/network/media_url.dart';
 import '../../../auth/data/models/auth_user_model.dart';
 import '../../../auth/domain/entities/auth_user.dart';
 import '../../domain/repositories/profile_repository.dart';
@@ -80,12 +82,15 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<String> uploadPhoto(String filePath) async {
+  Future<String> uploadPhoto(Uint8List bytes, String filename) async {
     try {
-      final response = await _api.uploadPhoto(filePath);
+      final response = await _api.uploadPhoto(bytes, filename);
       final data = response.data as Map<String, dynamic>;
       final payload = data['user'] is Map ? data['user'] as Map<String, dynamic> : data;
-      return (payload['avatar_url'] ?? payload['photo_url'] ?? '') as String;
+      // Confirmed real field name: "profile_photo_url" — not "avatar_url"
+      // or "photo_url" as first guessed.
+      final rawUrl = (payload['profile_photo_url'] ?? payload['avatar_url'] ?? payload['photo_url']) as String?;
+      return fixMediaUrl(rawUrl);
     } catch (e) {
       throw ErrorMapper.map(e);
     }

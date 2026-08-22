@@ -30,7 +30,13 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     if (picked == null) return;
     if (!mounted) return;
 
-    await ref.read(uploadPhotoControllerProvider.notifier).upload(picked.path);
+    // Read bytes rather than passing picked.path — on Flutter Web,
+    // image_picker returns a blob URL, not a real filesystem path, so
+    // reading bytes directly is what actually works on both platforms.
+    final bytes = await picked.readAsBytes();
+    if (!mounted) return;
+
+    await ref.read(uploadPhotoControllerProvider.notifier).upload(bytes, picked.name);
 
     if (!mounted) return;
     final state = ref.read(uploadPhotoControllerProvider);
@@ -97,17 +103,20 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                   children: [
                     Stack(
                       children: [
-                        CircleAvatar(
-                          radius: 44,
-                          backgroundColor: AppColors.primary,
-                          backgroundImage: user.avatarUrl != null ? NetworkImage(user.avatarUrl!) : null,
-                          child: user.avatarUrl == null
-                              ? Text(
-                                  user.name.initials,
-                                  style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600),
-                                )
-                              : null,
-                        ),
+                        Builder(builder: (context) {
+                          final hasAvatar = (user.avatarUrl ?? '').isNotEmpty;
+                          return CircleAvatar(
+                            radius: 44,
+                            backgroundColor: AppColors.primary,
+                            backgroundImage: hasAvatar ? NetworkImage(user.avatarUrl!) : null,
+                            child: !hasAvatar
+                                ? Text(
+                                    user.name.initials,
+                                    style: const TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.w600),
+                                  )
+                                : null,
+                          );
+                        }),
                         Positioned(
                           right: 0,
                           bottom: 0,

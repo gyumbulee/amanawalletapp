@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import '../../../auth/domain/entities/auth_user.dart';
 
 /// Reuses [AuthUser] from the auth feature rather than a separate Profile
@@ -28,6 +29,7 @@ abstract class ProfileRepository {
 
   Future<void> verifyBvn({required String bvn});
 
-  /// Returns the new avatar URL on success.
-  Future<String> uploadPhoto(String filePath);
+  /// Returns the new avatar URL on success. Takes raw bytes rather than a
+  /// file path — see ProfileApiService.uploadPhoto for why.
+  Future<String> uploadPhoto(Uint8List bytes, String filename);
 }

@@ -42,6 +42,27 @@ class ProfileController extends AsyncNotifier<AuthUser> {
     state = result;
     return !result.hasError;
   }
+
+  /// Patches just the avatar URL into this controller's cached state.
+  /// Called from UploadPhotoController after a successful upload — without
+  /// this, the Profile screen (which reads from here, not
+  /// authSessionProvider directly) wouldn't reflect the new photo until a
+  /// manual refresh or navigating away and back.
+  void setAvatarUrl(String avatarUrl) {
+    final current = state.value;
+    if (current != null) {
+      state = AsyncData(current.copyWith(avatarUrl: avatarUrl));
+    }
+  }
+
+  /// Same reasoning as [setAvatarUrl] — called from VerifyBvnController so
+  /// the Profile screen's BVN badge updates immediately.
+  void setBvnVerified(bool verified) {
+    final current = state.value;
+    if (current != null) {
+      state = AsyncData(current.copyWith(isBvnVerified: verified));
+    }
+  }
 }
 
 final profileControllerProvider = AsyncNotifierProvider<ProfileController, AuthUser>(

@@ -36,7 +36,9 @@ Route::prefix('v1')->middleware('maintenance')->group(function () {
             Route::get('me', [AuthController::class, 'me']);
         });
     });
-
+    Route::get('profile-photo/{filename}', [ProfileController::class, 'showPhoto'])
+        ->where('filename', '[A-Za-z0-9._-]+');
+        
     Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
         Route::put('/', [ProfileController::class, 'update']);
         Route::post('change-password', [ProfileController::class, 'changePassword']);

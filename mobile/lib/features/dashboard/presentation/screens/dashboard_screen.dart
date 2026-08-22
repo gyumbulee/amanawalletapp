@@ -55,17 +55,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 InkWell(
                   onTap: () => context.push(AppRoutes.profile),
                   customBorder: const CircleBorder(),
-                  child: CircleAvatar(
-                    radius: 22,
-                    backgroundColor: AppColors.primary,
-                    backgroundImage: user?.avatarUrl != null ? NetworkImage(user!.avatarUrl!) : null,
-                    child: user?.avatarUrl == null
-                        ? Text(
-                            (user?.name ?? '').initials,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-                          )
-                        : null,
-                  ),
+                  child: Builder(builder: (context) {
+                    final hasAvatar = (user?.avatarUrl ?? '').isNotEmpty;
+                    return CircleAvatar(
+                      radius: 22,
+                      backgroundColor: AppColors.primary,
+                      backgroundImage: hasAvatar ? NetworkImage(user!.avatarUrl!) : null,
+                      child: !hasAvatar
+                          ? Text(
+                              (user?.name ?? '').initials,
+                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                            )
+                          : null,
+                    );
+                  }),
                 ),
                 const SizedBox(width: 12),
                 Expanded(

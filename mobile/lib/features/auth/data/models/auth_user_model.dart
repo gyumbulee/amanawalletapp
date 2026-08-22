@@ -1,9 +1,15 @@
+import '../../../../core/network/media_url.dart';
 import '../../domain/entities/auth_user.dart';
 
 /// JSON <-> [AuthUser] mapping. Adjust the key names here if the Laravel
 /// UserResource field names differ once you wire this against the live API.
 class AuthUserModel {
   static AuthUser fromJson(Map<String, dynamic> json) {
+    // Field name unconfirmed here — mirrors "profile_photo_url" confirmed
+    // on the upload response, with fallbacks in case /auth/me differs.
+    final rawAvatarUrl =
+        (json['profile_photo_url'] ?? json['avatar_url'] ?? json['photo_url']) as String?;
+
     return AuthUser(
       id: json['id'].toString(),
       name: _resolveName(json),
@@ -11,7 +17,7 @@ class AuthUserModel {
       phone: json['phone'] as String? ?? '',
       referralCode: json['referral_code'] as String? ?? '',
       isEmailVerified: json['email_verified_at'] != null || json['is_email_verified'] == true,
-      avatarUrl: json['avatar_url'] as String?,
+      avatarUrl: rawAvatarUrl != null ? fixMediaUrl(rawAvatarUrl) : null,
       hasTransactionPin: json['has_transaction_pin'] as bool? ?? false,
       isBvnVerified: json['is_bvn_verified'] as bool? ?? false,
     );

@@ -20,7 +20,7 @@ class UserResource extends JsonResource
             'email_verified' => ! is_null($this->email_verified_at),
             'profile_photo_path' => $this->profile_photo_path,
             'profile_photo_url' => $this->profile_photo_path
-                ? \Illuminate\Support\Facades\Storage::disk('public')->url($this->profile_photo_path)
+                ? url('/api/v1/profile-photo/' . basename($this->profile_photo_path))
                 : null,
             'created_at' => $this->created_at,
         ];

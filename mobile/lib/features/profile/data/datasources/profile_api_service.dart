@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import '../../../../constants/api_endpoints.dart';
 
@@ -45,9 +46,13 @@ class ProfileApiService {
     return _dio.post(ApiEndpoints.verifyBvn, data: {'bvn': bvn});
   }
 
-  Future<Response> uploadPhoto(String filePath) async {
+  /// Takes raw bytes rather than a file path — `MultipartFile.fromFile`
+  /// needs a real filesystem path, which Flutter Web's image_picker
+  /// doesn't provide (it returns a blob URL instead). Reading bytes via
+  /// `XFile.readAsBytes()` works uniformly on web and mobile.
+  Future<Response> uploadPhoto(Uint8List bytes, String filename) async {
     final formData = FormData.fromMap({
-      'photo': await MultipartFile.fromFile(filePath),
+      'photo': MultipartFile.fromBytes(bytes, filename: filename),
     });
     return _dio.post(ApiEndpoints.uploadPhoto, data: formData);
   }
