@@ -8,7 +8,7 @@ class ApiEndpoints {
   static const login = '/auth/login';
   static const logout = '/auth/logout';
   static const authMe = '/auth/me';
-  static const verifyOtp = '/auth/verify-otp';
+  static const verifyOtp = '/auth/verify-email';
   static const resendOtp = '/auth/resend-otp';
   static const forgotPassword = '/auth/forgot-password';
   static const resetPassword = '/auth/reset-password';

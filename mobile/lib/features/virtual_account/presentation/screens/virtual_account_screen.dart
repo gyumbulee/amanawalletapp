@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../routing/app_router.dart';
 import '../../../../shared/extensions/context_extensions.dart';
 import '../../../../shared/widgets/cards/app_card.dart';
 import '../../../../shared/widgets/empty_states/empty_state.dart';
@@ -106,7 +108,42 @@ class VirtualAccountScreen extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 20),
-                if (!account.isActive)
+                if (account.isFailed)
+                  AppCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.error_outline_rounded, color: AppColors.error),
+                            const SizedBox(width: 12),
+                            const Expanded(
+                              child: Text(
+                                'We could not set up your virtual account.',
+                                style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ],
+                        ),
+                        if ((account.failureReason ?? '').isNotEmpty) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            account.failureReason!,
+                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          ),
+                        ],
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: OutlinedButton(
+                            onPressed: () => context.push(AppRoutes.verifyBvn),
+                            child: const Text('Fix with BVN'),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                else if (!account.isActive)
                   AppCard(
                     child: Row(
                       children: [
@@ -114,7 +151,7 @@ class VirtualAccountScreen extends ConsumerWidget {
                         const SizedBox(width: 12),
                         const Expanded(
                           child: Text(
-                            'Your virtual account is not yet active. Complete verification to activate it.',
+                            "We're setting up your virtual account. This usually only takes a moment — pull down to refresh.",
                             style: TextStyle(fontSize: 13),
                           ),
                         ),

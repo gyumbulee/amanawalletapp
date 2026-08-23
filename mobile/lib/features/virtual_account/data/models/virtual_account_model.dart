@@ -12,7 +12,8 @@ class VirtualAccountModel {
       accountNumber: json['account_number'] as String? ?? '',
       accountName: json['account_name'] as String? ?? '',
       bankName: json['bank_name'] as String? ?? '',
-      isActive: (json['status'] as String?)?.toLowerCase() == 'active',
+      status: (json['status'] as String?)?.toLowerCase() ?? 'pending',
+      failureReason: json['failure_reason'] as String?,
     );
   }
 }

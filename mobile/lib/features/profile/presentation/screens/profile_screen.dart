@@ -11,6 +11,7 @@ import '../../../../shared/widgets/loaders/app_spinner.dart';
 import '../../../../shared/widgets/responsive_scaffold.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../auth/presentation/providers/logout_controller.dart';
+import '../../../virtual_account/presentation/providers/virtual_account_provider.dart';
 import '../../../wallet/presentation/providers/wallet_balance_provider.dart';
 import '../providers/profile_controller.dart';
 import '../providers/upload_photo_controller.dart';
@@ -74,6 +75,11 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     // hasTransactionPin lives on the wallet record on the backend, not the
     // user — sourced from here rather than AuthUser.hasTransactionPin.
     final hasPin = ref.watch(walletBalanceProvider).value?.hasPin ?? false;
+    // Gating "Verify BVN" on the virtual account's actual status (not just
+    // !isBvnVerified) so this only surfaces as a fix when provisioning
+    // genuinely failed — not during the brief pending window right after
+    // registration, before the queued provisioning job has even run.
+    final virtualAccountFailed = ref.watch(virtualAccountProvider).value?.isFailed ?? false;
 
     return ResponsiveScaffold(
       appBar: AppBar(title: const Text('Profile')),
@@ -172,11 +178,12 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                 label: hasPin ? 'Change Transaction PIN' : 'Set Transaction PIN',
                 onTap: () => context.push(AppRoutes.setPin),
               ),
-              if (!user.isBvnVerified) ...[
+              if (virtualAccountFailed) ...[
                 const Divider(height: 1),
                 ProfileMenuItem(
                   icon: Icons.verified_user_outlined,
-                  label: 'Verify BVN',
+                  label: 'Fix Virtual Account (Verify BVN)',
+                  iconColor: AppColors.error,
                   onTap: () => context.push(AppRoutes.verifyBvn),
                 ),
               ],
