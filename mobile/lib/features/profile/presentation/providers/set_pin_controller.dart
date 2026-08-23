@@ -6,11 +6,11 @@ class SetPinController extends AsyncNotifier<bool> {
   @override
   bool build() => false;
 
-  Future<void> submit({required String pin, required String pinConfirmation}) async {
+  Future<void> submit({required String pin, required String pinConfirmation, String? currentPin}) async {
     state = const AsyncLoading();
     final repo = ref.read(profileRepositoryProvider);
     state = await AsyncValue.guard(() async {
-      await repo.setTransactionPin(pin: pin, pinConfirmation: pinConfirmation);
+      await repo.setTransactionPin(pin: pin, pinConfirmation: pinConfirmation, currentPin: currentPin);
       // hasPin lives on the wallet record on the backend, not the user —
       // refresh the wallet so the Profile screen's status reflects the
       // real value rather than an optimistic guess on AuthUser.

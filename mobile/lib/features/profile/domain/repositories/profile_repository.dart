@@ -22,9 +22,14 @@ abstract class ProfileRepository {
     required String newPasswordConfirmation,
   });
 
+  /// [currentPin] is required by the backend whenever the wallet already
+  /// has a PIN set (WalletService::setPin) — omit it only for the
+  /// first-time "create a PIN" flow. Check WalletBalance.hasPin to know
+  /// which flow applies before calling this.
   Future<void> setTransactionPin({
     required String pin,
     required String pinConfirmation,
+    String? currentPin,
   });
 
   Future<void> verifyBvn({required String bvn});

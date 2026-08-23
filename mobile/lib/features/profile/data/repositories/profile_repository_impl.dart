@@ -64,9 +64,13 @@ class ProfileRepositoryImpl implements ProfileRepository {
   }
 
   @override
-  Future<void> setTransactionPin({required String pin, required String pinConfirmation}) async {
+  Future<void> setTransactionPin({
+    required String pin,
+    required String pinConfirmation,
+    String? currentPin,
+  }) async {
     try {
-      await _api.setTransactionPin(pin: pin, pinConfirmation: pinConfirmation);
+      await _api.setTransactionPin(pin: pin, pinConfirmation: pinConfirmation, currentPin: currentPin);
     } catch (e) {
       throw ErrorMapper.map(e);
     }

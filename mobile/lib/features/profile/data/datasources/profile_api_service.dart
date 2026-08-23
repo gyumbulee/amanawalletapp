@@ -35,10 +35,12 @@ class ProfileApiService {
   Future<Response> setTransactionPin({
     required String pin,
     required String pinConfirmation,
+    String? currentPin,
   }) {
     return _dio.post(ApiEndpoints.setPin, data: {
       'pin': pin,
       'pin_confirmation': pinConfirmation,
+      if (currentPin != null) 'current_pin': currentPin,
     });
   }
 
