@@ -79,7 +79,8 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
     // !isBvnVerified) so this only surfaces as a fix when provisioning
     // genuinely failed — not during the brief pending window right after
     // registration, before the queued provisioning job has even run.
-    final virtualAccountFailed = ref.watch(virtualAccountProvider).value?.isFailed ?? false;
+    final virtualAccount = ref.watch(virtualAccountProvider).value;
+    final virtualAccountFailed = virtualAccount?.isFailed ?? false;
 
     return ResponsiveScaffold(
       appBar: AppBar(title: const Text('Profile')),
@@ -152,7 +153,16 @@ class _ProfileScreenState extends ConsumerState<ProfileScreen> {
                       spacing: 8,
                       alignment: WrapAlignment.center,
                       children: [
-                        _StatusChip(label: 'BVN', verified: user.isBvnVerified),
+                        _StatusChip(
+                          label: 'BVN',
+                          // Virtual account status is the real source of
+                          // truth (same reasoning as hasPin above) — it's
+                          // what VirtualAccountService actually sets, and
+                          // stays correct even if AuthUser.isBvnVerified
+                          // hasn't been refetched since the queued
+                          // provisioning job finished.
+                          verified: virtualAccount?.isActive ?? user.isBvnVerified,
+                        ),
                         _StatusChip(label: 'Transaction PIN', verified: hasPin),
                       ],
                     ),
