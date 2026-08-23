@@ -1,11 +1,11 @@
 {
-    "name": "mobile",
-    "short_name": "mobile",
+    "name": "Amana Wallet",
+    "short_name": "Amana Wallet",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#F9FAFB",
+    "theme_color": "#374151",
+    "description": "Amana Wallet - Secure. Simple. Reliable. Digital wallet, virtual account funding, and bill payments.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches AppColors.darkBackground (#111827) used by the Flutter dark theme -->
+    <color name="splash_background">#111827</color>
+</resources>

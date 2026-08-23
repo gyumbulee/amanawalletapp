@@ -1,0 +1,18 @@
+<svg width="256" height="256" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Amana Wallet mark: wallet + integrated shield. Brand palette:
+       Charcoal Gray #374151, Royal Blue #2563EB, Surface white. -->
+  <rect x="26.9" y="30.2" width="138.2" height="123.4" rx="24.7"
+        fill="#374151" />
+  <rect x="37.9" y="59.4" width="116.2" height="18.5" rx="7.4"
+        fill="#FFFFFF" fill-opacity="0.35" />
+  <circle cx="140.5" cy="102" r="10.9" fill="#FFFFFF" />
+  <path d="M162.9 116.6
+           L191.9 116.6
+           L191.9 128.3
+           L188.3 156.7
+           L177.4 175.5
+           L166.5 156.7
+           L162.9 128.3
+           Z"
+        fill="#2563EB" stroke="#FFFFFF" stroke-width="3.5" stroke-linejoin="round" />
+</svg>
