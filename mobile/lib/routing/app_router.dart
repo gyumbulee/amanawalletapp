@@ -21,6 +21,9 @@ import '../features/profile/presentation/screens/set_pin_screen.dart';
 import '../features/profile/presentation/screens/verify_bvn_screen.dart';
 import '../features/referral/presentation/screens/referral_screen.dart';
 import '../features/settings/presentation/screens/settings_screen.dart';
+import '../features/support/presentation/screens/create_ticket_screen.dart';
+import '../features/support/presentation/screens/support_tickets_screen.dart';
+import '../features/support/presentation/screens/ticket_detail_screen.dart';
 import '../features/transactions/presentation/screens/transaction_detail_screen.dart';
 import '../features/transactions/presentation/screens/transactions_screen.dart';
 import '../features/virtual_account/presentation/screens/virtual_account_screen.dart';
@@ -58,6 +61,9 @@ class AppRoutes {
   static const setPin = '/profile/set-pin';
   static const verifyBvn = '/profile/verify-bvn';
   static const settings = '/settings';
+  static const support = '/support';
+  static const newSupportTicket = '/support/new';
+  static String supportTicketDetailPath(String id) => '/support/$id';
 }
 
 /// Router is a provider so it can watch [isAuthenticatedProvider] and
@@ -183,6 +189,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: AppRoutes.settings,
         builder: (context, state) => const SettingsScreen(),
+      ),
+      GoRoute(
+        path: AppRoutes.support,
+        builder: (context, state) => const SupportTicketsScreen(),
+        routes: [
+          // 'new' registered before ':id' so it isn't swallowed by the
+          // dynamic segment.
+          GoRoute(
+            path: 'new',
+            builder: (context, state) {
+              final transactionReference = state.extra as String?;
+              return CreateTicketScreen(transactionReference: transactionReference);
+            },
+          ),
+          GoRoute(
+            path: ':id',
+            builder: (context, state) {
+              final id = state.pathParameters['id'] ?? '';
+              return TicketDetailScreen(ticketId: id);
+            },
+          ),
+        ],
       ),
     ],
   );

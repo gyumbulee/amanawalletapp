@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\ReferralController;
 use App\Http\Controllers\Api\V1\ReportController;
+use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Controllers\Api\V1\TransactionController;
 use App\Http\Controllers\Api\V1\VirtualAccountController;
 use App\Http\Controllers\Api\V1\WalletController;
@@ -98,6 +99,13 @@ Route::prefix('v1')->middleware('maintenance')->group(function () {
         Route::get('unread-count', [NotificationController::class, 'unreadCount']);
         Route::post('{id}/read', [NotificationController::class, 'markAsRead']);
         Route::post('read-all', [NotificationController::class, 'markAllAsRead']);
+    });
+
+    Route::middleware('auth:sanctum')->prefix('support')->group(function () {
+        Route::get('tickets', [SupportTicketController::class, 'index']);
+        Route::post('tickets', [SupportTicketController::class, 'store']);
+        Route::get('tickets/{uuid}', [SupportTicketController::class, 'show']);
+        Route::post('tickets/{uuid}/messages', [SupportTicketController::class, 'addMessage']);
     });
 
     // TODO: restrict to admin role once the roles/permissions system is built in Phase 14.

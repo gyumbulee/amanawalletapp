@@ -55,7 +55,9 @@ class AuthController extends Controller
         $result = $this->authService->login($request->login, $request->password);
 
         return response()->json([
-            'message' => 'Login successful.',
+            'message' => $result['token']
+                ? 'Login successful.'
+                : 'Please verify your email to continue. A new code has been sent.',
             'user' => new UserResource($result['user']),
             'token' => $result['token'],
         ]);

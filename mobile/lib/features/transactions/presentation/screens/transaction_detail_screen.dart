@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
+import '../../../../routing/app_router.dart';
 import '../../../../shared/extensions/context_extensions.dart';
 import '../../../../shared/extensions/currency_extensions.dart';
 import '../../../../shared/widgets/buttons/secondary_button.dart';
@@ -132,7 +134,7 @@ class TransactionDetailScreen extends ConsumerWidget {
                 SecondaryButton(
                   label: 'Need help with this transaction?',
                   onPressed: () {
-                    context.showSnack('Support contact coming soon');
+                    context.push(AppRoutes.newSupportTicket, extra: transaction.reference);
                   },
                 ),
                 const SizedBox(height: 24),

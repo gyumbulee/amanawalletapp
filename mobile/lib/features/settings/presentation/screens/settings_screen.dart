@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../routing/app_router.dart';
 import '../../../../shared/widgets/responsive_scaffold.dart';
 import '../../../../theme/app_colors.dart';
 import '../../../auth/presentation/providers/logout_controller.dart';
@@ -64,6 +66,16 @@ class SettingsScreen extends ConsumerWidget {
             onTap: () => ref.read(themeModeProvider.notifier).setThemeMode(ThemeMode.dark),
           ),
           const SizedBox(height: 24),
+          const Divider(height: 1),
+          const SizedBox(height: 8),
+          ListTile(
+            contentPadding: EdgeInsets.zero,
+            leading: const Icon(Icons.support_agent_outlined),
+            title: const Text('Support', style: TextStyle(fontWeight: FontWeight.w500)),
+            trailing: const Icon(Icons.chevron_right_rounded, color: AppColors.textSecondary),
+            onTap: () => context.push(AppRoutes.support),
+          ),
+          const SizedBox(height: 8),
           const Divider(height: 1),
           const SizedBox(height: 8),
           ListTile(

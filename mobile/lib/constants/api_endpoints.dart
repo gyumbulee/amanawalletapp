@@ -8,7 +8,7 @@ class ApiEndpoints {
   static const login = '/auth/login';
   static const logout = '/auth/logout';
   static const authMe = '/auth/me';
-  static const verifyOtp = '/auth/verify-email';
+  static const verifyOtp = '/auth/verify-otp';
   static const resendOtp = '/auth/resend-otp';
   static const forgotPassword = '/auth/forgot-password';
   static const resetPassword = '/auth/reset-password';
@@ -63,4 +63,9 @@ class ApiEndpoints {
   static const notificationsUnreadCount = '/notifications/unread-count';
   static const notificationsMarkAllRead = '/notifications/read-all';
   static String markNotificationRead(String id) => '/notifications/$id/read';
+
+  // Support
+  static const supportTickets = '/support/tickets';
+  static String supportTicketDetail(String id) => '/support/tickets/$id';
+  static String supportTicketMessages(String id) => '/support/tickets/$id/messages';
 }

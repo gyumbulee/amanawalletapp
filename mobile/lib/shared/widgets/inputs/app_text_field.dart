@@ -19,6 +19,8 @@ class AppTextField extends StatelessWidget {
     this.onChanged,
     this.validator,
     this.autofillHints,
+    this.maxLines = 1,
+    this.minLines,
   });
 
   final String label;
@@ -35,6 +37,12 @@ class AppTextField extends StatelessWidget {
   final String? Function(String?)? validator;
   final Iterable<String>? autofillHints;
 
+  /// Defaults to a single line, same as before this field existed, so
+  /// every existing call site is unaffected. Pass a higher value (and
+  /// usually a matching [minLines]) for multi-line compose boxes.
+  final int? maxLines;
+  final int? minLines;
+
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -46,6 +54,8 @@ class AppTextField extends StatelessWidget {
       onChanged: onChanged,
       validator: validator,
       autofillHints: autofillHints,
+      maxLines: obscureText ? 1 : maxLines,
+      minLines: obscureText ? null : minLines,
       decoration: InputDecoration(
         labelText: label,
         hintText: hintText,

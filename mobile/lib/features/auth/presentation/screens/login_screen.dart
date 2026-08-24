@@ -47,6 +47,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
       data: (result) {
         if (result == null) return;
         if (result.requiresOtpVerification) {
+          context.showSnack('Please verify your email to continue. A new code has been sent.');
           context.push(AppRoutes.verifyOtp, extra: _emailController.text.trim());
         } else {
           context.go(AppRoutes.dashboard);

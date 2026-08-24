@@ -50,6 +50,17 @@ class AuthService
         });
     }
 
+    /**
+     * @return array{user: User, token: ?string}
+     *
+     * [token] is null when the user's email still isn't verified — the
+     * Flutter side already expects and handles this exact shape
+     * (AuthResult.requiresOtpVerification => token == null, same contract
+     * register() uses), so this doesn't need a distinct error type. We
+     * fire a fresh OTP here rather than making the user tap "resend" on
+     * arrival, since the original one from registration may well have
+     * expired (10 minute window) by the time they come back to log in.
+     */
     public function login(string $login, string $password): array
     {
         $user = filter_var($login, FILTER_VALIDATE_EMAIL)
@@ -66,6 +77,12 @@ class AuthService
             throw ValidationException::withMessages([
                 'login' => ['Your account has been suspended. Contact support.'],
             ]);
+        }
+
+        if (! $user->email_verified_at) {
+            $this->sendEmailOtp($user);
+
+            return ['user' => $user, 'token' => null];
         }
 
         $token = $user->createToken('auth_token')->plainTextToken;

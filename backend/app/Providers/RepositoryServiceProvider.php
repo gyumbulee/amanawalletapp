@@ -4,10 +4,12 @@ namespace App\Providers;
 
 use App\Repositories\CommissionSettingRepository;
 use App\Repositories\Interfaces\CommissionSettingRepositoryInterface;
+use App\Repositories\Interfaces\SupportTicketRepositoryInterface;
 use App\Repositories\Interfaces\TransactionRepositoryInterface;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Interfaces\VirtualAccountRepositoryInterface;
 use App\Repositories\Interfaces\WalletRepositoryInterface;
+use App\Repositories\SupportTicketRepository;
 use App\Repositories\TransactionRepository;
 use App\Repositories\UserRepository;
 use App\Repositories\VirtualAccountRepository;
@@ -23,6 +25,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(VirtualAccountRepositoryInterface::class, VirtualAccountRepository::class);
         $this->app->bind(TransactionRepositoryInterface::class, TransactionRepository::class);
         $this->app->bind(CommissionSettingRepositoryInterface::class, CommissionSettingRepository::class);
+        $this->app->bind(SupportTicketRepositoryInterface::class, SupportTicketRepository::class);
     }
 
     public function boot(): void
