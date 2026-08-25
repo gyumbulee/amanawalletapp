@@ -3,6 +3,7 @@
 namespace App\Services\Providers;
 
 use App\Contracts\Providers\VirtualAccountProviderInterface;
+use App\Models\Provider;
 use App\Models\User;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -19,7 +20,7 @@ class FlutterwaveProvider implements VirtualAccountProviderInterface
             'bvn' => $user->bvn,
         ]);
 
-        $timeout = \App\Models\Provider::query()
+        $timeout = Provider::query()
             ->where('slug', 'flutterwave')
             ->value('timeout_seconds') ?? 30;
 
@@ -28,15 +29,15 @@ class FlutterwaveProvider implements VirtualAccountProviderInterface
             ->acceptJson()
             ->withToken(config('services.flutterwave.secret_key'))
             ->post(
-                config('services.flutterwave.base_url') . '/virtual-account-numbers',
+                config('services.flutterwave.base_url').'/virtual-account-numbers',
                 [
                     'email' => $user->email,
                     'bvn' => $user->bvn,
-                    'tx_ref' => 'VA-' . $user->uuid . '-' . Str::random(6),
+                    'tx_ref' => 'VA-'.$user->uuid.'-'.Str::random(6),
                     'phonenumber' => $user->phone,
                     'firstname' => $user->first_name,
                     'lastname' => $user->last_name,
-                    'narration' => $user->first_name . ' ' . $user->last_name . ' - Amana Wallet',
+                    'narration' => $user->first_name.' '.$user->last_name.' - Amana Wallet',
                     'is_permanent' => true,
                 ]
             );
@@ -59,7 +60,7 @@ class FlutterwaveProvider implements VirtualAccountProviderInterface
         return [
             'account_number' => $data['account_number'] ?? '',
             'account_name' => $data['account_name']
-                ?? ($user->first_name . ' ' . $user->last_name),
+                ?? ($user->first_name.' '.$user->last_name),
             'bank_name' => $data['bank_name'] ?? '',
             'reference' => $data['order_ref'] ?? $data['flw_ref'] ?? '',
         ];

@@ -16,8 +16,7 @@ class WalletService
 {
     public function __construct(
         protected WalletRepositoryInterface $walletRepository
-    ) {
-    }
+    ) {}
 
     public function createWalletForUser(User $user): Wallet
     {

@@ -8,9 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class AwardReferralBonus implements ShouldQueue
 {
-    public function __construct(protected ReferralService $referralService)
-    {
-    }
+    public function __construct(protected ReferralService $referralService) {}
 
     public function handle(TransactionSuccessful $event): void
     {

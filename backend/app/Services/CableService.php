@@ -17,8 +17,7 @@ class CableService
         protected WalletService $walletService,
         protected ProviderLogService $providerLogService,
         protected TransactionConfirmationService $confirmationService,
-    ) {
-    }
+    ) {}
 
     public function listPlans(string $cableProvider): array
     {
@@ -131,7 +130,7 @@ class CableService
         $this->walletService->credit(
             $wallet,
             $amount,
-            $transaction->reference . '-REVERSAL',
+            $transaction->reference.'-REVERSAL',
             'Reversal: cable TV subscription failed on all providers',
             $transaction
         );

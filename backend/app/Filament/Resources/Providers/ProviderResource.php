@@ -4,6 +4,7 @@ namespace App\Filament\Resources\Providers;
 
 use App\Filament\Resources\Providers\Pages\ListProviders;
 use App\Models\Provider;
+use BackedEnum;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -11,7 +12,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class ProviderResource extends Resource

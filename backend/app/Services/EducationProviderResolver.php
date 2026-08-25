@@ -2,17 +2,16 @@
 
 namespace App\Services;
 
+use App\Contracts\Providers\EducationProviderInterface;
 use App\Models\Provider;
 use App\Services\Providers\VtpassEducationProvider;
 
 class EducationProviderResolver
 {
-    public function __construct(protected VtpassEducationProvider $vtpass)
-    {
-    }
+    public function __construct(protected VtpassEducationProvider $vtpass) {}
 
     /**
-     * @return array<string, \App\Contracts\Providers\EducationProviderInterface>
+     * @return array<string, EducationProviderInterface>
      */
     public function resolve(): array
     {

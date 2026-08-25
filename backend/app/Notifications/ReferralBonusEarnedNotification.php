@@ -12,9 +12,7 @@ class ReferralBonusEarnedNotification extends Notification implements ShouldQueu
 {
     use Queueable;
 
-    public function __construct(public float $amount, public User $referredUser)
-    {
-    }
+    public function __construct(public float $amount, public User $referredUser) {}
 
     public function via(object $notifiable): array
     {
@@ -25,7 +23,7 @@ class ReferralBonusEarnedNotification extends Notification implements ShouldQueu
     {
         return (new MailMessage)
             ->subject('You Earned a Referral Bonus!')
-            ->greeting('Hello ' . $notifiable->first_name . ',')
+            ->greeting('Hello '.$notifiable->first_name.',')
             ->line("You just earned ₦{$this->amount} because {$this->referredUser->first_name} {$this->referredUser->last_name}, someone you referred, completed a qualifying transaction.")
             ->line('The bonus has been credited to your wallet.');
     }

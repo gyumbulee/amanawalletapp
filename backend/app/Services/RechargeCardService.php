@@ -12,9 +12,7 @@ use Throwable;
 
 class RechargeCardService
 {
-    public function __construct(protected EpinsProviderInterface $provider)
-    {
-    }
+    public function __construct(protected EpinsProviderInterface $provider) {}
 
     public function generateBatch(Admin $admin, string $network, float $denomination, int $quantity): RechargeCardBatch
     {

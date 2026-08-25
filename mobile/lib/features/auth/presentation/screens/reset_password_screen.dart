@@ -124,11 +124,11 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
               const SizedBox(height: 20),
               PrimaryButton(label: 'Reset Password', isLoading: isLoading, onPressed: _submit),
               const SizedBox(height: 12),
-              Center(
+              const Center(
                 child: Text(
                   "Didn't get a code? Go back and resend from the previous step.",
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                  style: TextStyle(color: AppColors.textSecondary, fontSize: 12),
                 ),
               ),
             ],

@@ -36,7 +36,7 @@ class CommissionSetting extends Model
                 return;
             }
 
-            \App\Models\AuditLog::record('commission_setting.save', $setting, $setting->getChanges());
+            AuditLog::record('commission_setting.save', $setting, $setting->getChanges());
         });
     }
 }

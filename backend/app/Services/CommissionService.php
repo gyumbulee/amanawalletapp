@@ -11,8 +11,7 @@ class CommissionService
 {
     public function __construct(
         protected CommissionSettingRepositoryInterface $commissionSettingRepository
-    ) {
-    }
+    ) {}
 
     public function calculate(string $serviceType, ?string $network, float $saleAmount): array
     {

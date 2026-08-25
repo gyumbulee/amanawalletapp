@@ -5,14 +5,11 @@ namespace App\Filament\Resources\ProviderLogs;
 use App\Filament\Resources\ProviderLogs\Pages\ListProviderLogs;
 use App\Filament\Resources\ProviderLogs\Pages\ViewProviderLog;
 use App\Models\ProviderLog;
-use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
-use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class ProviderLogResource extends Resource
@@ -39,31 +36,31 @@ class ProviderLogResource extends Resource
                 TextColumn::make('request_reference')->searchable()->copyable(),
                 TextColumn::make('status')->badge()
                     ->color(fn ($state): string => match ($state->value) {
-    'success' => 'success',
-    'failed' => 'danger',
-    'timeout' => 'warning',
-    default => 'gray',
-}),
+                        'success' => 'success',
+                        'failed' => 'danger',
+                        'timeout' => 'warning',
+                        default => 'gray',
+                    }),
                 TextColumn::make('duration_ms')->label('Duration (ms)'),
                 TextColumn::make('retry_count'),
                 TextColumn::make('error_message')->limit(40)->placeholder('-'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->filters([
-                SelectFilter::make('provider')->options([
-                    'flutterwave' => 'Flutterwave',
-                    'vtpass' => 'VTpass',
-                    'bigisub' => 'BigiSub',
-                    'epins' => 'ePINs',
-                ]),
-                SelectFilter::make('service_type')->options([
-                    'airtime' => 'Airtime', 'data' => 'Data', 'electricity' => 'Electricity',
-                    'cable' => 'Cable', 'education' => 'Education',
-                ]),
-                SelectFilter::make('status')->options([
-                    'success' => 'Success', 'failed' => 'Failed', 'timeout' => 'Timeout',
-                ]),
-            ])
+                                    SelectFilter::make('provider')->options([
+                                        'flutterwave' => 'Flutterwave',
+                                        'vtpass' => 'VTpass',
+                                        'bigisub' => 'BigiSub',
+                                        'epins' => 'ePINs',
+                                    ]),
+                                    SelectFilter::make('service_type')->options([
+                                        'airtime' => 'Airtime', 'data' => 'Data', 'electricity' => 'Electricity',
+                                        'cable' => 'Cable', 'education' => 'Education',
+                                    ]),
+                                    SelectFilter::make('status')->options([
+                                        'success' => 'Success', 'failed' => 'Failed', 'timeout' => 'Timeout',
+                                    ]),
+                                ])
             ->defaultSort('created_at', 'desc');
     }
 

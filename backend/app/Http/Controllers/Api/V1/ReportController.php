@@ -13,9 +13,7 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class ReportController extends Controller
 {
-    public function __construct(protected ReportService $reportService)
-    {
-    }
+    public function __construct(protected ReportService $reportService) {}
 
     public function dailySales(Request $request): JsonResponse
     {
@@ -124,7 +122,7 @@ class ReportController extends Controller
     protected function renderPdf(string $type, array $rows, Carbon $from, Carbon $to): Response
     {
         $pdf = Pdf::loadView('reports.export', [
-            'title' => ucfirst(str_replace('-', ' ', $type)) . ' Report',
+            'title' => ucfirst(str_replace('-', ' ', $type)).' Report',
             'from' => $from->toDateString(),
             'to' => $to->toDateString(),
             'columns' => array_keys($rows[0]),

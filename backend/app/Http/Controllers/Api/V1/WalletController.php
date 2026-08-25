@@ -11,9 +11,7 @@ use Illuminate\Http\Request;
 
 class WalletController extends Controller
 {
-    public function __construct(protected WalletService $walletService)
-    {
-    }
+    public function __construct(protected WalletService $walletService) {}
 
     public function show(Request $request): JsonResponse
     {

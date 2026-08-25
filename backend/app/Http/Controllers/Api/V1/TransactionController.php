@@ -10,9 +10,7 @@ use Illuminate\Http\Request;
 
 class TransactionController extends Controller
 {
-    public function __construct(protected TransactionRepositoryInterface $transactionRepository)
-    {
-    }
+    public function __construct(protected TransactionRepositoryInterface $transactionRepository) {}
 
     public function index(Request $request): JsonResponse
     {

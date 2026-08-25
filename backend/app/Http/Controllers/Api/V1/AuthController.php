@@ -10,15 +10,14 @@ use App\Http\Requests\Auth\ResendOtpRequest;
 use App\Http\Requests\Auth\ResetPasswordRequest;
 use App\Http\Requests\Auth\VerifyEmailRequest;
 use App\Http\Resources\UserResource;
+use App\Models\User;
 use App\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class AuthController extends Controller
 {
-    public function __construct(protected AuthService $authService)
-    {
-    }
+    public function __construct(protected AuthService $authService) {}
 
     public function register(RegisterRequest $request): JsonResponse
     {
@@ -41,7 +40,7 @@ class AuthController extends Controller
 
     public function resendOtp(ResendOtpRequest $request): JsonResponse
     {
-        $user = \App\Models\User::query()->where('email', $request->email)->firstOrFail();
+        $user = User::query()->where('email', $request->email)->firstOrFail();
 
         $this->authService->sendEmailOtp($user);
 

@@ -12,9 +12,7 @@ use Illuminate\Http\Request;
 
 class WebhookController extends Controller
 {
-    public function __construct(protected VirtualAccountProviderInterface $provider)
-    {
-    }
+    public function __construct(protected VirtualAccountProviderInterface $provider) {}
 
     public function flutterwave(Request $request): JsonResponse
     {

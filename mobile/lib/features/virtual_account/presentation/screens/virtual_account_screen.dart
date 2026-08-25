@@ -113,11 +113,11 @@ class VirtualAccountScreen extends ConsumerWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
+                        const Row(
                           children: [
-                            const Icon(Icons.error_outline_rounded, color: AppColors.error),
-                            const SizedBox(width: 12),
-                            const Expanded(
+                            Icon(Icons.error_outline_rounded, color: AppColors.error),
+                            SizedBox(width: 12),
+                            Expanded(
                               child: Text(
                                 'We could not set up your virtual account.',
                                 style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
@@ -144,12 +144,12 @@ class VirtualAccountScreen extends ConsumerWidget {
                     ),
                   )
                 else if (!account.isActive)
-                  AppCard(
+                  const AppCard(
                     child: Row(
                       children: [
-                        const Icon(Icons.info_outline_rounded, color: AppColors.warning),
-                        const SizedBox(width: 12),
-                        const Expanded(
+                        Icon(Icons.info_outline_rounded, color: AppColors.warning),
+                        SizedBox(width: 12),
+                        Expanded(
                           child: Text(
                             "We're setting up your virtual account. This usually only takes a moment — pull down to refresh.",
                             style: TextStyle(fontSize: 13),
@@ -159,12 +159,12 @@ class VirtualAccountScreen extends ConsumerWidget {
                     ),
                   ),
                 const SizedBox(height: 12),
-                AppCard(
+                const AppCard(
                   child: Row(
                     children: [
-                      const Icon(Icons.bolt_rounded, color: AppColors.accent),
-                      const SizedBox(width: 12),
-                      const Expanded(
+                      Icon(Icons.bolt_rounded, color: AppColors.accent),
+                      SizedBox(width: 12),
+                      Expanded(
                         child: Text(
                           'Transfers are credited automatically, usually within a minute. Pull down to refresh if your balance hasn\'t updated.',
                           style: TextStyle(fontSize: 13, color: AppColors.textSecondary),

@@ -12,9 +12,7 @@ class TransactionStatusNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public Transaction $transaction)
-    {
-    }
+    public function __construct(public Transaction $transaction) {}
 
     public function via(object $notifiable): array
     {
@@ -27,7 +25,7 @@ class TransactionStatusNotification extends Notification implements ShouldQueue
 
         $message = (new MailMessage)
             ->subject($successful ? 'Transaction Successful' : 'Transaction Failed')
-            ->greeting('Hello ' . $notifiable->first_name . ',');
+            ->greeting('Hello '.$notifiable->first_name.',');
 
         if ($successful) {
             $message->line("Your {$this->transaction->type->value} transaction of ₦{$this->transaction->amount} was successful.")
@@ -45,7 +43,7 @@ class TransactionStatusNotification extends Notification implements ShouldQueue
     {
         return [
             'title' => $this->transaction->status->value === 'successful' ? 'Transaction Successful' : 'Transaction Failed',
-            'message' => ucfirst($this->transaction->type->value) . ' - ₦' . $this->transaction->amount,
+            'message' => ucfirst($this->transaction->type->value).' - ₦'.$this->transaction->amount,
             'transaction_reference' => $this->transaction->reference,
             'status' => $this->transaction->status->value,
         ];

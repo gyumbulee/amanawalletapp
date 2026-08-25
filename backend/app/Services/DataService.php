@@ -17,8 +17,7 @@ class DataService
         protected WalletService $walletService,
         protected ProviderLogService $providerLogService,
         protected TransactionConfirmationService $confirmationService,
-    ) {
-    }
+    ) {}
 
     public function listPlans(string $network): array
     {
@@ -118,7 +117,7 @@ class DataService
         $this->walletService->credit(
             $wallet,
             $amount,
-            $transaction->reference . '-REVERSAL',
+            $transaction->reference.'-REVERSAL',
             'Reversal: data purchase failed on all providers',
             $transaction
         );

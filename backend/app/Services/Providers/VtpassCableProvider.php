@@ -32,7 +32,7 @@ class VtpassCableProvider implements CableProviderInterface
             now()->addHours(6),
             function () use ($cableProvider) {
                 $response = $this->client()
-                    ->get(config('services.vtpass.base_url') . '/service-variations', [
+                    ->get(config('services.vtpass.base_url').'/service-variations', [
                         'serviceID' => $cableProvider,
                     ]);
 
@@ -66,7 +66,7 @@ class VtpassCableProvider implements CableProviderInterface
         string $smartcardNumber
     ): array {
         $response = $this->client()
-            ->post(config('services.vtpass.base_url') . '/merchant-verify', [
+            ->post(config('services.vtpass.base_url').'/merchant-verify', [
                 'billersCode' => $smartcardNumber,
                 'serviceID' => $cableProvider,
             ]);
@@ -105,7 +105,7 @@ class VtpassCableProvider implements CableProviderInterface
         // Avoid making a second verification request here.
 
         $response = $this->client()
-            ->post(config('services.vtpass.base_url') . '/pay', [
+            ->post(config('services.vtpass.base_url').'/pay', [
                 'request_id' => $reference,
                 'serviceID' => $cableProvider,
                 'billersCode' => $smartcardNumber,

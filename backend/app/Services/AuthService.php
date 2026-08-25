@@ -10,7 +10,6 @@ use App\Notifications\PasswordResetOtp;
 use App\Repositories\Interfaces\UserRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -18,8 +17,7 @@ class AuthService
 {
     public function __construct(
         protected UserRepositoryInterface $userRepository
-    ) {
-    }
+    ) {}
 
     public function register(array $data): array
     {

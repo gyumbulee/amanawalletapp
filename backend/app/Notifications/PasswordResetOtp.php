@@ -11,9 +11,7 @@ class PasswordResetOtp extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public string $token)
-    {
-    }
+    public function __construct(public string $token) {}
 
     public function via(object $notifiable): array
     {
@@ -24,7 +22,7 @@ class PasswordResetOtp extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Reset your Amana Wallet password')
-            ->greeting('Hello ' . $notifiable->first_name . ',')
+            ->greeting('Hello '.$notifiable->first_name.',')
             ->line('Your password reset code is:')
             ->line("**{$this->token}**")
             ->line('This code expires in 60 minutes.')

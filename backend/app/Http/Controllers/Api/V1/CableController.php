@@ -15,9 +15,7 @@ use RuntimeException;
 
 class CableController extends Controller
 {
-    public function __construct(protected CableService $cableService)
-    {
-    }
+    public function __construct(protected CableService $cableService) {}
 
     public function plans(Request $request): JsonResponse
     {

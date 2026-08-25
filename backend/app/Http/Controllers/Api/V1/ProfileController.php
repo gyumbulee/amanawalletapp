@@ -12,8 +12,8 @@ use App\Services\WalletService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use RuntimeException;
 
 class ProfileController extends Controller
@@ -21,8 +21,7 @@ class ProfileController extends Controller
     public function __construct(
         protected WalletService $walletService,
         protected VirtualAccountService $virtualAccountService,
-    ) {
-    }
+    ) {}
 
     public function update(UpdateProfileRequest $request): JsonResponse
     {
@@ -96,7 +95,7 @@ class ProfileController extends Controller
         $user = $request->user();
 
         if ($user->profile_photo_path) {
-            \Illuminate\Support\Facades\Storage::disk('public')->delete($user->profile_photo_path);
+            Storage::disk('public')->delete($user->profile_photo_path);
         }
 
         $path = $request->file('photo')->store('profile-photos', 'public');
@@ -104,14 +103,14 @@ class ProfileController extends Controller
 
         return response()->json([
             'message' => 'Profile photo uploaded successfully.',
-            'profile_photo_url' => \Illuminate\Support\Facades\Storage::disk('public')->url($path),
+            'profile_photo_url' => Storage::disk('public')->url($path),
         ]);
     }
 
     public function showPhoto(string $filename)
     {
         $filename = basename($filename);
-        $path = 'profile-photos/' . $filename;
+        $path = 'profile-photos/'.$filename;
 
         if (! Storage::disk('public')->exists($path)) {
             abort(404);

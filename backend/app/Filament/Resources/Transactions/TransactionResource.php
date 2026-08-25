@@ -2,19 +2,19 @@
 
 namespace App\Filament\Resources\Transactions;
 
+use App\Enums\TransactionStatus;
 use App\Filament\Resources\Transactions\Pages\ListTransactions;
 use App\Filament\Resources\Transactions\Pages\ViewTransaction;
 use App\Models\Transaction;
+use BackedEnum;
+use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
-use App\Enums\TransactionStatus;
-use Filament\Schemas\Components\Section;
-use Filament\Infolists\Components\TextEntry;
 
 class TransactionResource extends Resource
 {
@@ -40,15 +40,15 @@ class TransactionResource extends Resource
                 TextColumn::make('type')->badge(),
                 TextColumn::make('amount')->money('NGN')->sortable(),
                 TextColumn::make('status')
-    ->badge()
-    ->formatStateUsing(fn (TransactionStatus $state) => ucfirst($state->value))
-    ->color(fn (TransactionStatus $state) => match ($state) {
-        TransactionStatus::Successful => 'success',
-        TransactionStatus::Failed => 'danger',
-        TransactionStatus::Reversed => 'warning',
-        TransactionStatus::Processing => 'warning',
-        TransactionStatus::Pending => 'gray',
-    }),
+                    ->badge()
+                    ->formatStateUsing(fn (TransactionStatus $state) => ucfirst($state->value))
+                    ->color(fn (TransactionStatus $state) => match ($state) {
+                        TransactionStatus::Successful => 'success',
+                        TransactionStatus::Failed => 'danger',
+                        TransactionStatus::Reversed => 'warning',
+                        TransactionStatus::Processing => 'warning',
+                        TransactionStatus::Pending => 'gray',
+                    }),
                 TextColumn::make('provider'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
@@ -63,12 +63,12 @@ class TransactionResource extends Resource
                     'referral_bonus' => 'Referral Bonus',
                 ]),
                 SelectFilter::make('status')->options([
-    TransactionStatus::Pending->value => 'Pending',
-    TransactionStatus::Processing->value => 'Processing',
-    TransactionStatus::Successful->value => 'Successful',
-    TransactionStatus::Failed->value => 'Failed',
-    TransactionStatus::Reversed->value => 'Reversed',
-]),
+                    TransactionStatus::Pending->value => 'Pending',
+                    TransactionStatus::Processing->value => 'Processing',
+                    TransactionStatus::Successful->value => 'Successful',
+                    TransactionStatus::Failed->value => 'Failed',
+                    TransactionStatus::Reversed->value => 'Reversed',
+                ]),
             ])
             ->defaultSort('created_at', 'desc');
     }
@@ -80,31 +80,32 @@ class TransactionResource extends Resource
             'view' => ViewTransaction::route('/{record}'),
         ];
     }
+
     public static function infolist(Schema $schema): Schema
-{
-    return $schema
-        ->components([
-            Section::make('Transaction Details')
-                ->schema([
-                    TextEntry::make('reference')->copyable(),
+    {
+        return $schema
+            ->components([
+                Section::make('Transaction Details')
+                    ->schema([
+                        TextEntry::make('reference')->copyable(),
 
-                    TextEntry::make('user.email')
-                        ->label('User'),
+                        TextEntry::make('user.email')
+                            ->label('User'),
 
-                    TextEntry::make('type')
-                        ->badge(),
+                        TextEntry::make('type')
+                            ->badge(),
 
-                    TextEntry::make('amount')
-                        ->money('NGN'),
+                        TextEntry::make('amount')
+                            ->money('NGN'),
 
-                    TextEntry::make('status')
-                        ->badge(),
+                        TextEntry::make('status')
+                            ->badge(),
 
-                    TextEntry::make('provider'),
+                        TextEntry::make('provider'),
 
-                    TextEntry::make('created_at')
-                        ->dateTime(),
-                ]),
-        ]);
-}
+                        TextEntry::make('created_at')
+                            ->dateTime(),
+                    ]),
+            ]);
+    }
 }

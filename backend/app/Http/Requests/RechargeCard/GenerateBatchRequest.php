@@ -21,14 +21,15 @@ class GenerateBatchRequest extends FormRequest
             'quantity' => ['required', 'integer', 'min:1', 'max:1000'],
         ];
     }
+
     protected function prepareForValidation(): void
-{
-    \Log::info('GenerateBatchRequest', [
-        'content_type' => $this->header('Content-Type'),
-        'raw' => $this->getContent(),
-        'all' => $this->all(),
-        'json' => $this->json()->all(),
-        'input' => $this->input(),
-    ]);
-}
+    {
+        \Log::info('GenerateBatchRequest', [
+            'content_type' => $this->header('Content-Type'),
+            'raw' => $this->getContent(),
+            'all' => $this->all(),
+            'json' => $this->json()->all(),
+            'input' => $this->input(),
+        ]);
+    }
 }

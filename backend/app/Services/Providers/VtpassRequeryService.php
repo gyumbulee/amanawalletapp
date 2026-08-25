@@ -29,7 +29,7 @@ class VtpassRequeryService
             'secret-key' => config('services.vtpass.secret_key'),
         ])
             ->timeout(Provider::query()->where('slug', 'vtpass')->value('timeout_seconds') ?? 30)
-            ->post(config('services.vtpass.base_url') . '/requery', [
+            ->post(config('services.vtpass.base_url').'/requery', [
                 'request_id' => $requestId,
             ]);
 

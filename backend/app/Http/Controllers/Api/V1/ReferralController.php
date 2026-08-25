@@ -34,7 +34,7 @@ class ReferralController extends Controller
 
         $data = $earnings->through(fn ($earning) => [
             'id' => $earning->uuid,
-            'referred_user' => $earning->referredUser->first_name . ' ' . $earning->referredUser->last_name,
+            'referred_user' => $earning->referredUser->first_name.' '.$earning->referredUser->last_name,
             'amount' => (float) $earning->amount,
             'created_at' => $earning->created_at,
         ]);

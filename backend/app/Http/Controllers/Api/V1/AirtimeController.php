@@ -12,9 +12,7 @@ use RuntimeException;
 
 class AirtimeController extends Controller
 {
-    public function __construct(protected AirtimeService $airtimeService)
-    {
-    }
+    public function __construct(protected AirtimeService $airtimeService) {}
 
     public function purchase(PurchaseAirtimeRequest $request): JsonResponse
     {

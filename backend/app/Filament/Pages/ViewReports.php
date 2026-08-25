@@ -114,7 +114,7 @@ class ViewReports extends Page implements HasForms
         ];
     }
 
-    protected function exportCsv(): StreamedResponse|null
+    protected function exportCsv(): ?StreamedResponse
     {
         if (empty($this->rows)) {
             Notification::make()->title('No data to export.')->warning()->send();
@@ -147,7 +147,7 @@ class ViewReports extends Page implements HasForms
         $type = $this->data['type'];
 
         $pdf = Pdf::loadView('reports.export', [
-            'title' => ucfirst(str_replace('-', ' ', $type)) . ' Report',
+            'title' => ucfirst(str_replace('-', ' ', $type)).' Report',
             'from' => $this->data['from'],
             'to' => $this->data['to'],
             'columns' => $this->columns,
@@ -155,10 +155,10 @@ class ViewReports extends Page implements HasForms
         ]);
 
         return response()->streamDownload(
-    function () use ($pdf) {
-        echo $pdf->output();
-    },
-    "{$type}-report.pdf"
-);
+            function () use ($pdf) {
+                echo $pdf->output();
+            },
+            "{$type}-report.pdf"
+        );
     }
 }

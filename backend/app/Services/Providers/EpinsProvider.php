@@ -3,6 +3,7 @@
 namespace App\Services\Providers;
 
 use App\Contracts\Providers\EpinsProviderInterface;
+use App\Models\Provider;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
 use RuntimeException;
@@ -11,7 +12,7 @@ class EpinsProvider implements EpinsProviderInterface
 {
     public function generateCards(string $network, float $denomination, int $quantity): array
     {
-        $url = rtrim(config('services.epins.base_url'), '/') . '/epins/generate';
+        $url = rtrim(config('services.epins.base_url'), '/').'/epins/generate';
 
         Log::info('EPINS Request', [
             'url' => $url,
@@ -21,7 +22,7 @@ class EpinsProvider implements EpinsProviderInterface
             'api_key_present' => ! empty(config('services.epins.api_key')),
         ]);
 
-        $timeout = \App\Models\Provider::query()
+        $timeout = Provider::query()
             ->where('slug', 'epins')
             ->value('timeout_seconds') ?? 30;
 

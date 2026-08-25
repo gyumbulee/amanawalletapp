@@ -1,7 +1,6 @@
 import '../../../../core/errors/failure.dart';
 import '../../../../core/network/error_mapper.dart';
 import '../../../../core/storage/secure_storage_service.dart';
-import '../../domain/entities/auth_user.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../datasources/auth_api_service.dart';
 import '../models/auth_user_model.dart';

@@ -14,9 +14,7 @@ use RuntimeException;
 
 class EducationController extends Controller
 {
-    public function __construct(protected EducationService $educationService)
-    {
-    }
+    public function __construct(protected EducationService $educationService) {}
 
     public function plans(Request $request): JsonResponse
     {

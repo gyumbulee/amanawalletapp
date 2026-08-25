@@ -11,9 +11,7 @@ class EmailVerificationOtp extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public string $otp)
-    {
-    }
+    public function __construct(public string $otp) {}
 
     public function via(object $notifiable): array
     {
@@ -24,7 +22,7 @@ class EmailVerificationOtp extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('Verify your Amana Wallet email')
-            ->greeting('Hello ' . $notifiable->first_name . ',')
+            ->greeting('Hello '.$notifiable->first_name.',')
             ->line('Your email verification code is:')
             ->line("**{$this->otp}**")
             ->line('This code expires in 10 minutes.')

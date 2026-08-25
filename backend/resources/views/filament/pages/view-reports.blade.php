@@ -54,4 +54,4 @@
             </table>
         @endif
     </x-filament::section>
-</x-filament-panels::page>source ~/venvs/socialbot/bin/activate
+</x-filament-panels::page>

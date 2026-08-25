@@ -14,9 +14,7 @@ use Illuminate\Http\Request;
 
 class RechargeCardController extends Controller
 {
-    public function __construct(protected RechargeCardService $rechargeCardService)
-    {
-    }
+    public function __construct(protected RechargeCardService $rechargeCardService) {}
 
     public function generateBatch(GenerateBatchRequest $request): JsonResponse
     {

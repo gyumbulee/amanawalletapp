@@ -17,8 +17,7 @@ class EducationService
         protected WalletService $walletService,
         protected ProviderLogService $providerLogService,
         protected TransactionConfirmationService $confirmationService,
-    ) {
-    }
+    ) {}
 
     public function listPlans(string $educationType): array
     {
@@ -132,7 +131,7 @@ class EducationService
         $this->walletService->credit(
             $wallet,
             $amount,
-            $transaction->reference . '-REVERSAL',
+            $transaction->reference.'-REVERSAL',
             'Reversal: education PIN purchase failed on all providers',
             $transaction
         );

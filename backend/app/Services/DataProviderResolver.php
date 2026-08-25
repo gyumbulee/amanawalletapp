@@ -4,12 +4,16 @@ namespace App\Services;
 
 use App\Models\Provider;
 use App\Services\Providers\BigiSubDataProvider;
-use App\Services\Providers\VtpassDataProvider;
 
+/**
+ * Data is routed to Bigisub strictly - no VTpass fallback. Deliberate
+ * product decision, not a technical limitation - see
+ * AirtimeProviderResolver for the other half of the split (Airtime stays
+ * VTpass-only).
+ */
 class DataProviderResolver
 {
     public function __construct(
-        protected VtpassDataProvider $vtpass,
         protected BigiSubDataProvider $bigisub,
     ) {
     }
@@ -19,20 +23,8 @@ class DataProviderResolver
      */
     public function resolve(): array
     {
-        $providers = ['vtpass' => $this->vtpass, 'bigisub' => $this->bigisub];
+        $isActive = Provider::query()->where('slug', 'bigisub')->value('is_active') ?? true;
 
-        $activeSlugs = Provider::query()
-            ->whereIn('slug', array_keys($providers))
-            ->where('is_active', true)
-            ->orderBy('priority')
-            ->pluck('slug');
-
-        $chain = [];
-
-        foreach ($activeSlugs as $slug) {
-            $chain[$slug] = $providers[$slug];
-        }
-
-        return $chain;
+        return $isActive ? ['bigisub' => $this->bigisub] : [];
     }
 }

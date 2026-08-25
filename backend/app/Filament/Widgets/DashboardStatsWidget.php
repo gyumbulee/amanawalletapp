@@ -19,12 +19,12 @@ class DashboardStatsWidget extends BaseWidget
         return [
             Stat::make('Total Users', User::query()->count()),
             Stat::make('Active Users', User::query()->where('status', 'active')->count()),
-            Stat::make('Total Wallet Balance', '₦' . number_format(Wallet::query()->sum('balance'), 2)),
-            Stat::make('Daily Revenue', '₦' . number_format(
+            Stat::make('Total Wallet Balance', '₦'.number_format(Wallet::query()->sum('balance'), 2)),
+            Stat::make('Daily Revenue', '₦'.number_format(
                 Commission::query()->whereDate('created_at', $today)->sum('profit'),
                 2
             )),
-            Stat::make('Monthly Revenue', '₦' . number_format(
+            Stat::make('Monthly Revenue', '₦'.number_format(
                 Commission::query()->where('created_at', '>=', $monthStart)->sum('profit'),
                 2
             )),

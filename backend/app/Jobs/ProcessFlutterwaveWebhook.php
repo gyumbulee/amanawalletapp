@@ -20,9 +20,7 @@ class ProcessFlutterwaveWebhook implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, SerializesModels;
 
-    public function __construct(public int $webhookId)
-    {
-    }
+    public function __construct(public int $webhookId) {}
 
     public function handle(
         UserRepositoryInterface $userRepository,

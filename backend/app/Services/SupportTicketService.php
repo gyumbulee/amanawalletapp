@@ -17,8 +17,7 @@ class SupportTicketService
 {
     public function __construct(
         protected SupportTicketRepositoryInterface $ticketRepository
-    ) {
-    }
+    ) {}
 
     public function createTicket(User $user, string $subject, string $message, ?string $transactionReference = null): SupportTicket
     {

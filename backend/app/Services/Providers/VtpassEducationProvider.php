@@ -32,7 +32,7 @@ class VtpassEducationProvider implements EducationProviderInterface
             now()->addHours(6),
             function () use ($educationType) {
                 $response = $this->client()
-                    ->get(config('services.vtpass.base_url') . '/service-variations', [
+                    ->get(config('services.vtpass.base_url').'/service-variations', [
                         'serviceID' => $educationType,
                     ]);
 
@@ -69,7 +69,7 @@ class VtpassEducationProvider implements EducationProviderInterface
         }
 
         $response = $this->client()
-            ->post(config('services.vtpass.base_url') . '/merchant-verify', [
+            ->post(config('services.vtpass.base_url').'/merchant-verify', [
                 'billersCode' => $profileId,
                 'serviceID' => 'jamb',
                 'type' => 'utme',
@@ -116,7 +116,7 @@ class VtpassEducationProvider implements EducationProviderInterface
         }
 
         $response = $this->client()
-            ->post(config('services.vtpass.base_url') . '/pay', $payload);
+            ->post(config('services.vtpass.base_url').'/pay', $payload);
 
         $body = $response->json() ?? [];
 

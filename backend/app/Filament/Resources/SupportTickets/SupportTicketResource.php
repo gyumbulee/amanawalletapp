@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\SupportTickets;
 
+use App\Enums\SupportTicketStatus;
 use App\Filament\Resources\SupportTickets\Pages\ListSupportTickets;
 use App\Models\AuditLog;
 use App\Models\SupportTicket;
@@ -16,7 +17,6 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use App\Enums\SupportTicketStatus;
 use Illuminate\Support\HtmlString;
 use UnitEnum;
 
@@ -56,11 +56,11 @@ class SupportTicketResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('status')->options([
-    SupportTicketStatus::Open->value => 'Open',
-    SupportTicketStatus::Pending->value => 'Pending',
-    SupportTicketStatus::Resolved->value => 'Resolved',
-    SupportTicketStatus::Closed->value => 'Closed',
-]),
+                    SupportTicketStatus::Open->value => 'Open',
+                    SupportTicketStatus::Pending->value => 'Pending',
+                    SupportTicketStatus::Resolved->value => 'Resolved',
+                    SupportTicketStatus::Closed->value => 'Closed',
+                ]),
             ])
             ->recordActions([
                 Action::make('viewThread')
@@ -72,8 +72,8 @@ class SupportTicketResource extends Resource
                             ->content(fn () => new HtmlString(
                                 $record->messages->map(fn ($m) => sprintf(
                                     '<div style="margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #e5e7eb;">'
-                                        . '<strong>%s</strong> <span style="color:#6b7280;font-size:12px;">%s</span>'
-                                        . '<div style="margin-top:4px;">%s</div></div>',
+                                        .'<strong>%s</strong> <span style="color:#6b7280;font-size:12px;">%s</span>'
+                                        .'<div style="margin-top:4px;">%s</div></div>',
                                     $m->sender_type->value === 'admin' ? 'Support Team' : 'Customer',
                                     $m->created_at->format('M j, Y g:ia'),
                                     nl2br(e($m->message))

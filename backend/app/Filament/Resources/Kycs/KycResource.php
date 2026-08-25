@@ -5,15 +5,15 @@ namespace App\Filament\Resources\Kycs;
 use App\Filament\Resources\Kycs\Pages\ListKycs;
 use App\Models\AuditLog;
 use App\Models\Kyc;
+use BackedEnum;
+use App\Enums\KycStatus;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
-use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use BackedEnum;
 use UnitEnum;
 
 class KycResource extends Resource
@@ -37,12 +37,13 @@ class KycResource extends Resource
             ->columns([
                 TextColumn::make('user.email')->label('User')->searchable(),
                 TextColumn::make('type')->badge(),
-                TextColumn::make('status')->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'verified' => 'success',
-                        'rejected' => 'danger',
-                        default => 'warning',
-                    }),
+                TextColumn::make('status')
+    ->badge()
+    ->color(fn (KycStatus $state): string => match ($state) {
+        KycStatus::Verified => 'success',
+        KycStatus::Rejected => 'danger',
+        KycStatus::Pending => 'warning',
+    }),
                 TextColumn::make('rejection_reason')->limit(40)->placeholder('-'),
                 TextColumn::make('verified_at')->dateTime()->placeholder('-'),
                 TextColumn::make('created_at')->dateTime()->sortable(),

@@ -81,6 +81,7 @@ class ElectricityService
                 $meta = $transaction->meta ?? [];
                 $meta['token'] = $result['token'] ?? null;
                 $meta['customer_name'] = $result['customer_name'] ?? null;
+                $meta['units'] = $result['units'] ?? null;
                 $transaction->update(['meta' => $meta]);
 
                 if ($status === 'pending') {

@@ -3,6 +3,7 @@
 namespace App\Services\Providers;
 
 use App\Contracts\Providers\ElectricityProviderInterface;
+use App\Models\Provider;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -14,8 +15,8 @@ class VtpassElectricityProvider implements ElectricityProviderInterface
             'api-key' => config('services.vtpass.api_key'),
             'secret-key' => config('services.vtpass.secret_key'),
         ])
-            ->timeout(\App\Models\Provider::query()->where('slug', 'vtpass')->value('timeout_seconds') ?? 30)
-            ->post(config('services.vtpass.base_url') . '/merchant-verify', [
+            ->timeout(Provider::query()->where('slug', 'vtpass')->value('timeout_seconds') ?? 30)
+            ->post(config('services.vtpass.base_url').'/merchant-verify', [
                 'billersCode' => $meterNumber,
                 'serviceID' => $disco,
                 'type' => $meterType,
@@ -25,22 +26,22 @@ class VtpassElectricityProvider implements ElectricityProviderInterface
         $content = $body['content'] ?? [];
 
         if (! $response->successful() || ($content['error'] ?? null)) {
-    throw new RuntimeException(
-        $content['error']
-        ?? $body['response_description']
-        ?? 'Meter number verification failed.'
-    );
-}
+            throw new RuntimeException(
+                $content['error']
+                ?? $body['response_description']
+                ?? 'Meter number verification failed.'
+            );
+        }
 
         return [
-    'customer_name' => $content['Customer_Name']
-        ?? $content['customer_name']
-        ?? 'VTpass Sandbox Customer',
+            'customer_name' => $content['Customer_Name']
+                ?? $content['customer_name']
+                ?? 'VTpass Sandbox Customer',
 
-    'customer_address' => $content['Address']
-        ?? $content['address']
-        ?? null,
-];
+            'customer_address' => $content['Address']
+                ?? $content['address']
+                ?? null,
+        ];
     }
 
     public function payBill(string $disco, string $meterType, string $meterNumber, float $amount, string $phone, string $reference): array
@@ -52,8 +53,8 @@ class VtpassElectricityProvider implements ElectricityProviderInterface
             'api-key' => config('services.vtpass.api_key'),
             'secret-key' => config('services.vtpass.secret_key'),
         ])
-            ->timeout(\App\Models\Provider::query()->where('slug', 'vtpass')->value('timeout_seconds') ?? 30)
-            ->post(config('services.vtpass.base_url') . '/pay', [
+            ->timeout(Provider::query()->where('slug', 'vtpass')->value('timeout_seconds') ?? 30)
+            ->post(config('services.vtpass.base_url').'/pay', [
                 'request_id' => $reference,
                 'serviceID' => $disco,
                 'billersCode' => $meterNumber,

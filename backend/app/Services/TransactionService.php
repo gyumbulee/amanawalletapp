@@ -16,8 +16,7 @@ class TransactionService
 {
     public function __construct(
         protected TransactionRepositoryInterface $transactionRepository
-    ) {
-    }
+    ) {}
 
     public function initiate(
         User $user,
@@ -87,7 +86,7 @@ class TransactionService
     protected function generateReference(): string
     {
         do {
-            $reference = 'TXN-' . now()->format('YmdHis') . '-' . Str::upper(Str::random(6));
+            $reference = 'TXN-'.now()->format('YmdHis').'-'.Str::upper(Str::random(6));
         } while ($this->transactionRepository->referenceExists($reference));
 
         return $reference;

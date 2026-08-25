@@ -26,9 +26,7 @@ class ProcessVtpassWebhook implements ShouldQueue
      */
     protected const ACTIONABLE_STATUSES = ['delivered', 'failed', 'reversed'];
 
-    public function __construct(public int $webhookId)
-    {
-    }
+    public function __construct(public int $webhookId) {}
 
     public function handle(
         VtpassRequeryService $requeryService,

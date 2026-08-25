@@ -12,9 +12,7 @@ class SupportTicketReplyNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    public function __construct(public SupportTicket $ticket, public string $messagePreview)
-    {
-    }
+    public function __construct(public SupportTicket $ticket, public string $messagePreview) {}
 
     public function via(object $notifiable): array
     {
@@ -25,7 +23,7 @@ class SupportTicketReplyNotification extends Notification implements ShouldQueue
     {
         return (new MailMessage)
             ->subject('New reply on your support ticket')
-            ->greeting('Hello ' . $notifiable->first_name . ',')
+            ->greeting('Hello '.$notifiable->first_name.',')
             ->line("There's a new reply on your ticket: \"{$this->ticket->subject}\"")
             ->line($this->messagePreview)
             ->line('Open the app to view the full conversation and reply.');

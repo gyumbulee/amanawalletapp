@@ -18,8 +18,7 @@ class VirtualAccountService
     public function __construct(
         protected VirtualAccountRepositoryInterface $virtualAccountRepository,
         protected VirtualAccountProviderInterface $provider,
-    ) {
-    }
+    ) {}
 
     public function provisionForUser(User $user): VirtualAccount
     {

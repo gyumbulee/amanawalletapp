@@ -16,7 +16,7 @@ class UpdateProfileRequest extends FormRequest
         return [
             'first_name' => ['sometimes', 'string', 'max:100'],
             'last_name' => ['sometimes', 'string', 'max:100'],
-            'phone' => ['sometimes', 'string', 'max:20', 'unique:users,phone,' . $this->user()->id],
+            'phone' => ['sometimes', 'string', 'max:20', 'unique:users,phone,'.$this->user()->id],
         ];
     }
 }

@@ -10,7 +10,5 @@ class TransactionFailed
 {
     use Dispatchable, SerializesModels;
 
-    public function __construct(public Transaction $transaction)
-    {
-    }
+    public function __construct(public Transaction $transaction) {}
 }

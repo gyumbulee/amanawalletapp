@@ -19,13 +19,13 @@ class TransactionsRelationManager extends RelationManager
                 TextColumn::make('type')->badge(),
                 TextColumn::make('amount')->money('NGN'),
                 TextColumn::make('status')
-    ->badge()
-    ->color(fn ($state): string => match ($state->value) {
-        'successful' => 'success',
-        'failed' => 'danger',
-        'reversed' => 'warning',
-        default => 'gray',
-    }),
+                    ->badge()
+                    ->color(fn ($state): string => match ($state->value) {
+                        'successful' => 'success',
+                        'failed' => 'danger',
+                        'reversed' => 'warning',
+                        default => 'gray',
+                    }),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ])
             ->defaultSort('created_at', 'desc');

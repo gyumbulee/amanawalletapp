@@ -8,9 +8,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 
 class ProvisionVirtualAccountForNewUser implements ShouldQueue
 {
-    public function __construct(protected VirtualAccountService $virtualAccountService)
-    {
-    }
+    public function __construct(protected VirtualAccountService $virtualAccountService) {}
 
     public function handle(UserRegistered $event): void
     {

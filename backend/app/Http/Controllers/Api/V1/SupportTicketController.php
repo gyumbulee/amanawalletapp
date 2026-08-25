@@ -17,8 +17,7 @@ class SupportTicketController extends Controller
     public function __construct(
         protected SupportTicketService $ticketService,
         protected SupportTicketRepositoryInterface $ticketRepository
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): JsonResponse
     {

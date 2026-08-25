@@ -3,51 +3,74 @@
 namespace App\Services\Providers;
 
 use App\Contracts\Providers\DataProviderInterface;
-use Illuminate\Support\Facades\Http;
+use App\Services\Providers\Concerns\HasBigiSubClient;
+use Illuminate\Support\Facades\Cache;
 use RuntimeException;
 
 class BigiSubDataProvider implements DataProviderInterface
 {
+    use HasBigiSubClient;
+
+    // Confirmed from Bigisub's v2 "Buy Data" docs page.
+    protected const NETWORK_CODES = [
+        'mtn' => 1,
+        'glo' => 2,
+        'airtel' => 3,
+        '9mobile' => 4,
+    ];
+
     public function listPlans(string $network): array
     {
-        $response = Http::withToken(config('services.bigisub.api_key'))
-            ->timeout(\App\Models\Provider::query()->where('slug', 'bigisub')->value('timeout_seconds') ?? 30)
-            ->get(config('services.bigisub.base_url') . '/data/plans', ['network' => strtoupper($network)]);
+        $networkCode = self::NETWORK_CODES[strtolower($network)] ?? null;
 
-        $body = $response->json() ?? [];
-
-        if (! $response->successful() || ($body['status'] ?? null) !== 'success') {
-            throw new RuntimeException($body['message'] ?? 'Failed to fetch BigiSub data plans.');
+        if (! $networkCode) {
+            throw new RuntimeException("Unsupported network for Bigisub data: {$network}");
         }
 
-        return array_map(fn ($plan) => [
-            'variation_code' => $plan['plan_id'],
-            'name' => $plan['name'],
-            'amount' => (float) $plan['amount'],
-        ], $body['data'] ?? []);
+        return Cache::remember("bigisub-data-plans-{$networkCode}", now()->addHours(6), function () use ($networkCode) {
+            $response = $this->bigiSubClient()
+                ->get("{$this->bigiSubBaseUrl()}/vtu/data/plans/", ['network' => $networkCode]);
+
+            $plans = $this->bigiSubData($response, 'Failed to fetch Bigisub data plans.');
+
+            return collect($plans)
+                ->reject(fn ($plan) => $plan['plan_disabled'] ?? false)
+                ->map(fn ($plan) => [
+                    'variation_code' => (string) $plan['id'],
+                    'name' => "{$plan['size']} {$plan['plantype']} - {$plan['validity']}",
+                    // 'amount' is Bigisub's reseller/discounted price (what we
+                    // actually pay) - distinct from 'plan_amount' (their
+                    // displayed retail price) and 'corporate_amount' (a
+                    // cheaper tier this app isn't set up for). Matches the
+                    // same role VTpass's 'variation_amount' plays.
+                    'amount' => (float) $plan['amount'],
+                ])
+                ->values()
+                ->all();
+        });
     }
 
     public function purchase(string $network, string $phone, string $variationCode, float $amount, string $reference): array
     {
-        $response = Http::withToken(config('services.bigisub.api_key'))
-            ->timeout(\App\Models\Provider::query()->where('slug', 'bigisub')->value('timeout_seconds') ?? 30)
-            ->post(config('services.bigisub.base_url') . '/data', [
-                'network' => strtoupper($network),
-                'phone' => $phone,
-                'plan_id' => $variationCode,
-                'amount' => $amount,
-                'reference' => $reference,
-            ]);
+        $networkCode = self::NETWORK_CODES[strtolower($network)] ?? null;
 
-        $body = $response->json() ?? [];
-
-        if (! $response->successful() || ($body['status'] ?? null) !== 'success') {
-            throw new RuntimeException($body['message'] ?? 'BigiSub data purchase failed.');
+        if (! $networkCode) {
+            throw new RuntimeException("Unsupported network for Bigisub data: {$network}");
         }
 
+        $response = $this->bigiSubClient()->post("{$this->bigiSubBaseUrl()}/vtu/data/purchase/", [
+            'network' => $networkCode,
+            'plan' => (int) $variationCode,
+            'phone_number' => $phone,
+            'pin' => $this->bigiSubPin(),
+            'ported_number' => true,
+        ]);
+
+        $data = $this->bigiSubData($response, 'Bigisub data purchase failed.');
+
         return [
-            'provider_reference' => $body['data']['reference'] ?? $reference,
-            'status' => 'delivered',
+            'provider_reference' => $data['reference'] ?? $data['transaction_id'] ?? $reference,
+            'status' => $this->mapBigiSubStatus($data['status'] ?? 'failed'),
         ];
     }
 }

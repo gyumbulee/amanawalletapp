@@ -27,8 +27,17 @@ return [
     'secret_key' => env('VTPASS_SECRET_KEY'),
     ],
     'bigisub' => [
-    'base_url' => env('BIGISUB_BASE_URL'),
+    // Confirmed against Bigisub's official v2 API docs (api.bigisub.ng),
+    // Aug 2026 - supersedes an earlier v1 integration attempt.
+    // Auth: `Authorization: Token {api_key}` (Django REST Framework token).
+    // Every response is enveloped as {"success": bool, "data": {...}, "message": "..."}.
+    'base_url' => env('BIGISUB_BASE_URL', 'https://api.bigisub.ng/api/v2'),
     'api_key' => env('BIGISUB_API_KEY'),
+    // Bigisub's own merchant transaction PIN (set once in your Bigisub
+    // dashboard), required on every purchase call. This is NOT the
+    // end-user's Amana Wallet transaction PIN - that's verified separately,
+    // before we ever reach the provider layer.
+    'pin' => env('BIGISUB_PIN'),
     ],
     'flutterwave' => [
     'base_url' => env('FLUTTERWAVE_BASE_URL', 'https://api.flutterwave.com/v3'),

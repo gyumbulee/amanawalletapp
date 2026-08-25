@@ -10,7 +10,5 @@ class UserRegistered
 {
     use Dispatchable, SerializesModels;
 
-    public function __construct(public User $user)
-    {
-    }
+    public function __construct(public User $user) {}
 }

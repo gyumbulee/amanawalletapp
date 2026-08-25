@@ -14,8 +14,7 @@ class TransactionConfirmationService
         protected WalletService $walletService,
         protected TransactionService $transactionService,
         protected CommissionService $commissionService,
-    ) {
-    }
+    ) {}
 
     /**
      * @param  string  $status  Provider's inner status - expects 'delivered', 'failed', or 'reversed'.
@@ -46,7 +45,7 @@ class TransactionConfirmationService
         $this->walletService->credit(
             $transaction->wallet,
             (float) $transaction->amount,
-            $transaction->reference . '-REVERSAL',
+            $transaction->reference.'-REVERSAL',
             "Reversal: {$transaction->type->value} transaction {$status}",
             $transaction
         );

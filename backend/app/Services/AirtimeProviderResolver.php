@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Contracts\Providers\AirtimeProviderInterface;
 use App\Models\Provider;
 use App\Services\Providers\BigiSubAirtimeProvider;
 use App\Services\Providers\VtpassAirtimeProvider;
@@ -11,11 +12,10 @@ class AirtimeProviderResolver
     public function __construct(
         protected VtpassAirtimeProvider $vtpass,
         protected BigiSubAirtimeProvider $bigisub,
-    ) {
-    }
+    ) {}
 
     /**
-     * @return array<string, \App\Contracts\Providers\AirtimeProviderInterface> slug => provider, in priority order
+     * @return array<string, AirtimeProviderInterface> slug => provider, in priority order
      */
     public function resolve(): array
     {

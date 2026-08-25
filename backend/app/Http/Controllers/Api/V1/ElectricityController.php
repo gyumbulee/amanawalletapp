@@ -12,9 +12,7 @@ use RuntimeException;
 
 class ElectricityController extends Controller
 {
-    public function __construct(protected ElectricityService $electricityService)
-    {
-    }
+    public function __construct(protected ElectricityService $electricityService) {}
 
     public function verifyMeter(VerifyMeterRequest $request): JsonResponse
     {

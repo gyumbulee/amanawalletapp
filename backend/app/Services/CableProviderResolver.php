@@ -3,11 +3,16 @@
 namespace App\Services;
 
 use App\Models\Provider;
-use App\Services\Providers\VtpassCableProvider;
+use App\Services\Providers\BigiSubCableProvider;
 
+/**
+ * Cable is routed to Bigisub strictly - no VTpass fallback. See
+ * AirtimeProviderResolver for the full split rationale. Previously
+ * VTpass-only (no Bigisub cable implementation existed); now the reverse.
+ */
 class CableProviderResolver
 {
-    public function __construct(protected VtpassCableProvider $vtpass)
+    public function __construct(protected BigiSubCableProvider $bigisub)
     {
     }
 
@@ -18,8 +23,8 @@ class CableProviderResolver
     {
         $chain = [];
 
-        if ($this->isActive('vtpass')) {
-            $chain['vtpass'] = $this->vtpass;
+        if ($this->isActive('bigisub')) {
+            $chain['bigisub'] = $this->bigisub;
         }
 
         return $chain;

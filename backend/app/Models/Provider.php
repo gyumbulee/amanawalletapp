@@ -34,7 +34,7 @@ class Provider extends Model
                 return;
             }
 
-            \App\Models\AuditLog::record(
+            AuditLog::record(
                 'provider.update',
                 $provider,
                 $provider->getChanges()

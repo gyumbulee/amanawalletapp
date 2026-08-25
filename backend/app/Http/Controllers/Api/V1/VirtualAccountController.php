@@ -10,9 +10,7 @@ use Illuminate\Http\Request;
 
 class VirtualAccountController extends Controller
 {
-    public function __construct(protected VirtualAccountService $virtualAccountService)
-    {
-    }
+    public function __construct(protected VirtualAccountService $virtualAccountService) {}
 
     public function show(Request $request): JsonResponse
     {

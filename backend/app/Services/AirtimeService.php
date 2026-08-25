@@ -17,8 +17,7 @@ class AirtimeService
         protected WalletService $walletService,
         protected ProviderLogService $providerLogService,
         protected TransactionConfirmationService $confirmationService,
-    ) {
-    }
+    ) {}
 
     public function purchase(User $user, string $network, string $phone, float $amount, string $pin): Transaction
     {
@@ -102,7 +101,7 @@ class AirtimeService
         $this->walletService->credit(
             $wallet,
             $amount,
-            $transaction->reference . '-REVERSAL',
+            $transaction->reference.'-REVERSAL',
             'Reversal: airtime purchase failed on all providers',
             $transaction
         );

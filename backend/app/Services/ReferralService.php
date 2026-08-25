@@ -14,8 +14,7 @@ class ReferralService
     public function __construct(
         protected TransactionService $transactionService,
         protected WalletService $walletService,
-    ) {
-    }
+    ) {}
 
     public function maybeAwardBonus(Transaction $transaction): void
     {

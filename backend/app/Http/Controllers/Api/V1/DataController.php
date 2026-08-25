@@ -14,9 +14,7 @@ use RuntimeException;
 
 class DataController extends Controller
 {
-    public function __construct(protected DataService $dataService)
-    {
-    }
+    public function __construct(protected DataService $dataService) {}
 
     public function plans(Request $request): JsonResponse
     {

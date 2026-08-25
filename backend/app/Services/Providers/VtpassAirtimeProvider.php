@@ -3,6 +3,7 @@
 namespace App\Services\Providers;
 
 use App\Contracts\Providers\AirtimeProviderInterface;
+use App\Models\Provider;
 use Illuminate\Support\Facades\Http;
 use RuntimeException;
 
@@ -34,8 +35,8 @@ class VtpassAirtimeProvider implements AirtimeProviderInterface
             'api-key' => config('services.vtpass.api_key'),
             'secret-key' => config('services.vtpass.secret_key'),
         ])
-            ->timeout(\App\Models\Provider::query()->where('slug', 'vtpass')->value('timeout_seconds') ?? 30)
-            ->post(config('services.vtpass.base_url') . '/pay', [
+            ->timeout(Provider::query()->where('slug', 'vtpass')->value('timeout_seconds') ?? 30)
+            ->post(config('services.vtpass.base_url').'/pay', [
                 'request_id' => $reference,
                 'serviceID' => $serviceId,
                 'amount' => $amount,

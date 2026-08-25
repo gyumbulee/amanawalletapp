@@ -23,4 +23,3 @@ class WalletRepository implements WalletRepositoryInterface
         return Wallet::query()->where('id', $walletId)->lockForUpdate()->firstOrFail();
     }
 }
-
