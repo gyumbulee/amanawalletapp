@@ -11,5 +11,6 @@ abstract class AirtimeRepository {
     required String phone,
     required int amountKobo,
     required String transactionPin,
+    required String idempotencyKey,
   });
 }

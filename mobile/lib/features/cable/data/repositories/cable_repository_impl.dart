@@ -56,6 +56,7 @@ class CableRepositoryImpl implements CableRepository {
     required String variationCode,
     required String phone,
     required String transactionPin,
+    required String idempotencyKey,
   }) async {
     try {
       final response = await _api.purchase(
@@ -64,6 +65,7 @@ class CableRepositoryImpl implements CableRepository {
         variationCode: variationCode,
         phone: phone,
         transactionPin: transactionPin,
+        idempotencyKey: idempotencyKey,
       );
       final data = response.data as Map<String, dynamic>;
       final payload = data['transaction'] is Map

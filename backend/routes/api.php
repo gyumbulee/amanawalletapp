@@ -39,7 +39,7 @@ Route::prefix('v1')->middleware('maintenance')->group(function () {
     });
     Route::get('profile-photo/{filename}', [ProfileController::class, 'showPhoto'])
         ->where('filename', '[A-Za-z0-9._-]+');
-
+        
     Route::middleware('auth:sanctum')->prefix('profile')->group(function () {
         Route::put('/', [ProfileController::class, 'update']);
         Route::post('change-password', [ProfileController::class, 'changePassword']);
@@ -64,29 +64,34 @@ Route::prefix('v1')->middleware('maintenance')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->prefix('airtime')->group(function () {
-        Route::post('purchase', [AirtimeController::class, 'purchase']);
+        Route::post('purchase', [AirtimeController::class, 'purchase'])
+            ->middleware('idempotent')->name('airtime.purchase');
     });
 
     Route::middleware('auth:sanctum')->prefix('data')->group(function () {
         Route::get('plans', [DataController::class, 'plans']);
-        Route::post('purchase', [DataController::class, 'purchase']);
+        Route::post('purchase', [DataController::class, 'purchase'])
+            ->middleware('idempotent')->name('data.purchase');
     });
 
     Route::middleware('auth:sanctum')->prefix('electricity')->group(function () {
         Route::post('verify-meter', [ElectricityController::class, 'verifyMeter']);
-        Route::post('purchase', [ElectricityController::class, 'purchase']);
+        Route::post('purchase', [ElectricityController::class, 'purchase'])
+            ->middleware('idempotent')->name('electricity.purchase');
     });
 
     Route::middleware('auth:sanctum')->prefix('cable')->group(function () {
         Route::get('plans', [CableController::class, 'plans']);
         Route::post('verify-smartcard', [CableController::class, 'verifySmartcard']);
-        Route::post('purchase', [CableController::class, 'purchase']);
+        Route::post('purchase', [CableController::class, 'purchase'])
+            ->middleware('idempotent')->name('cable.purchase');
     });
 
     Route::middleware('auth:sanctum')->prefix('education')->group(function () {
         Route::get('plans', [EducationController::class, 'plans']);
         Route::post('verify-profile', [EducationController::class, 'verifyProfile']);
-        Route::post('purchase', [EducationController::class, 'purchase']);
+        Route::post('purchase', [EducationController::class, 'purchase'])
+            ->middleware('idempotent')->name('education.purchase');
     });
 
     Route::middleware('auth:sanctum')->prefix('referrals')->group(function () {

@@ -26,38 +26,50 @@ class VtpassEducationProvider implements EducationProviderInterface
     }
 
     public function listPlans(string $educationType): array
-    {
-        return Cache::remember(
-            "vtpass-education-plans-{$educationType}",
-            now()->addHours(6),
-            function () use ($educationType) {
-                $response = $this->client()
-                    ->get(config('services.vtpass.base_url').'/service-variations', [
-                        'serviceID' => $educationType,
-                    ]);
+{
+    $supportedServices = [
+        'jamb',
+        'waec',
+        'waec-registration',
+    ];
 
-                $body = $response->json() ?? [];
-
-                if (
-                    ! $response->successful() ||
-                    ($body['response_description'] ?? null) !== '000'
-                ) {
-                    throw new RuntimeException(
-                        $body['response_description']
-                            ?? 'Failed to fetch VTpass education plans.'
-                    );
-                }
-
-                $variations = $body['content']['variations'] ?? [];
-
-                return array_map(fn ($variation) => [
-                    'variation_code' => $variation['variation_code'],
-                    'name' => $variation['name'],
-                    'amount' => (float) $variation['variation_amount'],
-                ], $variations);
-            }
+    if (! in_array($educationType, $supportedServices, true)) {
+        throw new RuntimeException(
+            "Unsupported VTpass education service: {$educationType}"
         );
     }
+
+    return Cache::remember(
+        "vtpass-education-plans-{$educationType}",
+        now()->addHours(6),
+        function () use ($educationType) {
+            $response = $this->client()
+                ->get(config('services.vtpass.base_url').'/service-variations', [
+                    'serviceID' => $educationType,
+                ]);
+
+            $body = $response->json() ?? [];
+
+            if (
+                ! $response->successful() ||
+                ($body['response_description'] ?? null) !== '000'
+            ) {
+                throw new RuntimeException(
+                    $body['response_description']
+                        ?? 'Failed to fetch VTpass education plans.'
+                );
+            }
+
+            $variations = $body['content']['variations'] ?? [];
+
+            return array_map(fn ($variation) => [
+                'variation_code' => $variation['variation_code'],
+                'name' => $variation['name'],
+                'amount' => (float) $variation['variation_amount'],
+            ], $variations);
+        }
+    );
+}
 
     public function verifyProfile(
         string $educationType,

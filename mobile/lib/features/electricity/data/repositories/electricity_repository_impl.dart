@@ -39,6 +39,7 @@ class ElectricityRepositoryImpl implements ElectricityRepository {
     required int amountKobo,
     required String phone,
     required String transactionPin,
+    required String idempotencyKey,
   }) async {
     try {
       final response = await _api.purchase(
@@ -48,6 +49,7 @@ class ElectricityRepositoryImpl implements ElectricityRepository {
         amountKobo: amountKobo,
         phone: phone,
         transactionPin: transactionPin,
+        idempotencyKey: idempotencyKey,
       );
       final data = response.data as Map<String, dynamic>;
       final payload = data['transaction'] is Map

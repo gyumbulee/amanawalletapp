@@ -1,11 +1,14 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../constants/network_provider.dart';
+import '../../../../core/utils/idempotency_key_generator.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../../transactions/presentation/providers/transaction_list_provider.dart';
 import '../../../wallet/presentation/providers/wallet_balance_provider.dart';
 import 'data_repository_provider.dart';
 
 class DataPurchaseController extends AsyncNotifier<Transaction?> {
+  String _idempotencyKey = IdempotencyKeyGenerator.generate();
+
   @override
   Transaction? build() => null;
 
@@ -23,6 +26,7 @@ class DataPurchaseController extends AsyncNotifier<Transaction?> {
         variationCode: variationCode,
         phone: phone,
         transactionPin: transactionPin,
+        idempotencyKey: _idempotencyKey,
       );
       await ref.read(walletBalanceProvider.notifier).refresh();
       ref.invalidate(transactionListProvider);
@@ -30,7 +34,10 @@ class DataPurchaseController extends AsyncNotifier<Transaction?> {
     });
   }
 
-  void reset() => state = const AsyncData(null);
+  void reset() {
+    state = const AsyncData(null);
+    _idempotencyKey = IdempotencyKeyGenerator.generate();
+  }
 }
 
 final dataPurchaseControllerProvider =

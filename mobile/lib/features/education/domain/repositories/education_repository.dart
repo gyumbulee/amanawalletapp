@@ -22,6 +22,7 @@ abstract class EducationRepository {
     required String variationCode,
     required String phone,
     required String transactionPin,
+    required String idempotencyKey,
     String? profileId,
   });
 }

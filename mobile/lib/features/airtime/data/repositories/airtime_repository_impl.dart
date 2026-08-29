@@ -19,6 +19,7 @@ class AirtimeRepositoryImpl implements AirtimeRepository {
     required String phone,
     required int amountKobo,
     required String transactionPin,
+    required String idempotencyKey,
   }) async {
     try {
       final response = await _api.purchase(
@@ -26,6 +27,7 @@ class AirtimeRepositoryImpl implements AirtimeRepository {
         phone: phone,
         amountKobo: amountKobo,
         transactionPin: transactionPin,
+        idempotencyKey: idempotencyKey,
       );
       final data = response.data as Map<String, dynamic>;
       final payload = data['transaction'] is Map

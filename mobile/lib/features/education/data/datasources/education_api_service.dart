@@ -26,14 +26,19 @@ class EducationApiService {
     required String variationCode,
     required String phone,
     required String transactionPin,
+    required String idempotencyKey,
     String? profileId,
   }) {
-    return _dio.post(ApiEndpoints.educationPurchase, data: {
-      'education_type': examType,
-      'variation_code': variationCode,
-      'phone': phone,
-      'pin': transactionPin,
-      if (profileId != null && profileId.isNotEmpty) 'profile_id': profileId,
-    });
+    return _dio.post(
+      ApiEndpoints.educationPurchase,
+      data: {
+        'education_type': examType,
+        'variation_code': variationCode,
+        'phone': phone,
+        'pin': transactionPin,
+        if (profileId != null && profileId.isNotEmpty) 'profile_id': profileId,
+      },
+      options: Options(headers: {'Idempotency-Key': idempotencyKey}),
+    );
   }
 }

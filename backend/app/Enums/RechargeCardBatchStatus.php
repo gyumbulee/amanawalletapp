@@ -6,5 +6,6 @@ enum RechargeCardBatchStatus: string
 {
     case Pending = 'pending';
     case Completed = 'completed';
+    case Partial = 'partial';
     case Failed = 'failed';
 }

@@ -14,12 +14,17 @@ class DataApiService {
     required String variationCode,
     required String phone,
     required String transactionPin,
+    required String idempotencyKey,
   }) {
-    return _dio.post(ApiEndpoints.dataPurchase, data: {
-      'network': network,
-      'variation_code': variationCode,
-      'phone': phone,
-      'pin': transactionPin,
-    });
+    return _dio.post(
+      ApiEndpoints.dataPurchase,
+      data: {
+        'network': network,
+        'variation_code': variationCode,
+        'phone': phone,
+        'pin': transactionPin,
+      },
+      options: Options(headers: {'Idempotency-Key': idempotencyKey}),
+    );
   }
 }

@@ -12,6 +12,7 @@ class RechargeCardBatch extends Model
         'network',
         'denomination',
         'quantity',
+        'requested_quantity',
         'status',
         'generated_by',
         'failure_reason',

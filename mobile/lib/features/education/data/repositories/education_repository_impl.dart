@@ -57,6 +57,7 @@ class EducationRepositoryImpl implements EducationRepository {
     required String variationCode,
     required String phone,
     required String transactionPin,
+    required String idempotencyKey,
     String? profileId,
   }) async {
     try {
@@ -65,6 +66,7 @@ class EducationRepositoryImpl implements EducationRepository {
         variationCode: variationCode,
         phone: phone,
         transactionPin: transactionPin,
+        idempotencyKey: idempotencyKey,
         profileId: profileId,
       );
       final data = response.data as Map<String, dynamic>;

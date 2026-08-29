@@ -16,5 +16,6 @@ abstract class ElectricityRepository {
     required int amountKobo,
     required String phone,
     required String transactionPin,
+    required String idempotencyKey,
   });
 }

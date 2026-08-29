@@ -8,7 +8,6 @@ use App\Filament\Resources\Users\Pages\ViewUser;
 use App\Filament\Resources\Users\RelationManagers\TransactionsRelationManager;
 use App\Models\AuditLog;
 use App\Models\User;
-use BackedEnum;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
@@ -18,6 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use BackedEnum;
 use UnitEnum;
 
 class UserResource extends Resource
@@ -105,7 +105,9 @@ class UserResource extends Resource
                     ->requiresConfirmation()
                     ->color('danger')
                     ->visible(
-                        fn (User $record) => $record->status->value === 'active'
+                        fn (User $record) =>
+                            $record->status->value === 'active'
+                            && auth('admin')->user()?->can('users.suspend')
                     )
                     ->successNotification(
                         Notification::make()
@@ -124,7 +126,9 @@ class UserResource extends Resource
                     ->requiresConfirmation()
                     ->color('success')
                     ->visible(
-                        fn (User $record) => $record->status->value === 'suspended'
+                        fn (User $record) =>
+                            $record->status->value === 'suspended'
+                            && auth('admin')->user()?->can('users.activate')
                     )
                     ->successNotification(
                         Notification::make()
@@ -145,6 +149,7 @@ class UserResource extends Resource
                     })
                     ->requiresConfirmation()
                     ->color('warning')
+                    ->visible(fn () => auth('admin')->user()?->can('users.reset-pin'))
                     ->successNotification(
                         Notification::make()
                             ->success()

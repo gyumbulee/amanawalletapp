@@ -24,17 +24,22 @@ class ElectricityApiService {
     required int amountKobo,
     required String phone,
     required String transactionPin,
+    required String idempotencyKey,
   }) {
-    return _dio.post(ApiEndpoints.electricityPurchase, data: {
-      'disco': disco,
-      'meter_type': meterType,
-      'meter_number': meterNumber,
-      // Backend expects amount in plain Naira, not kobo — same convention
-      // as wallet balance and data plan amounts. Rounded (not truncated)
-      // in case of decimal Naira input, e.g. ₦50.50.
-      'amount': (amountKobo / 100).round(),
-      'phone': phone,
-      'pin': transactionPin,
-    });
+    return _dio.post(
+      ApiEndpoints.electricityPurchase,
+      data: {
+        'disco': disco,
+        'meter_type': meterType,
+        'meter_number': meterNumber,
+        // Backend expects amount in plain Naira, not kobo — same convention
+        // as wallet balance and data plan amounts. Rounded (not truncated)
+        // in case of decimal Naira input, e.g. ₦50.50.
+        'amount': (amountKobo / 100).round(),
+        'phone': phone,
+        'pin': transactionPin,
+      },
+      options: Options(headers: {'Idempotency-Key': idempotencyKey}),
+    );
   }
 }

@@ -1,0 +1,114 @@
+Flutter crash report.
+Please report a bug at https://github.com/flutter/flutter/issues.
+
+## command
+
+flutter run -v
+
+## exception
+
+NoSuchMethodError: NoSuchMethodError: Class '_StringAdapterSink' has no instance method '_greaterThanFromInteger'.
+Receiver: Instance of '_StringAdapterSink'
+Tried calling: _greaterThanFromInteger(0)
+
+```
+#0      Object.noSuchMethod (dart:core-patch/object_patch.dart:38:5)
+#1      int.> (dart:core-patch/integers.dart:130:18)
+#2      RangeError.checkValidRange (dart:core/errors.dart:385:11)
+#3      _StringBase.substring (dart:core-patch/string_patch.dart:437:27)
+#4      _LineSplitterSink._addLines (dart:convert/line_splitter.dart:170:28)
+#5      _LineSplitterSink.addSlice (dart:convert/line_splitter.dart:131:7)
+#6      StringConversionSink.add (dart:convert/string_conversion.dart:40:5)
+#7      _SinkTransformerStreamSubscription._handleData (dart:async/stream_transformers.dart:115:24)
+#8      _rootRunUnary (dart:async/zone_root.dart:48:47)
+#9      _CustomZone.runUnary (dart:async/zone.dart:733:19)
+#10     _CustomZone.runUnaryGuarded (dart:async/zone.dart:633:7)
+#11     _BufferingStreamSubscription._sendData (dart:async/stream_impl.dart:381:11)
+#12     _BufferingStreamSubscription._add (dart:async/stream_impl.dart:312:7)
+#13     _SinkTransformerStreamSubscription._add (dart:async/stream_transformers.dart:67:11)
+#14     _EventSinkWrapper.add (dart:async/stream_transformers.dart:13:11)
+#15     StackTraceTransform.transformWithCallSite.<anonymous closure> (package:flutter_tools/src/base/utils.dart:601:16)
+#16     _HandlerEventSink.add (dart:async/stream_transformers.dart:230:17)
+#17     _SinkTransformerStreamSubscription._handleData (dart:async/stream_transformers.dart:115:24)
+#18     _rootRunUnary (dart:async/zone_root.dart:48:47)
+#19     _CustomZone.runUnary (dart:async/zone.dart:733:19)
+#20     _CustomZone.runUnaryGuarded (dart:async/zone.dart:633:7)
+#21     _BufferingStreamSubscription._sendData (dart:async/stream_impl.dart:381:11)
+#22     _BufferingStreamSubscription._add (dart:async/stream_impl.dart:312:7)
+#23     _SinkTransformerStreamSubscription._add (dart:async/stream_transformers.dart:67:11)
+#24     _EventSinkWrapper.add (dart:async/stream_transformers.dart:13:11)
+#25     _StringAdapterSink.add (dart:convert/string_conversion.dart:231:11)
+#26     _StringAdapterSink.addSlice (dart:convert/string_conversion.dart:236:7)
+#27     _Utf8ConversionSink.addSlice (dart:convert/string_conversion.dart:316:20)
+#28     _Utf8ConversionSink.add (dart:convert/string_conversion.dart:309:5)
+#29     _ConverterStreamEventSink.add (dart:convert/chunked_conversion.dart:70:18)
+#30     _SinkTransformerStreamSubscription._handleData (dart:async/stream_transformers.dart:115:24)
+#31     _rootRunUnary (dart:async/zone_root.dart:48:47)
+#32     _CustomZone.runUnary (dart:async/zone.dart:733:19)
+#33     _CustomZone.runUnaryGuarded (dart:async/zone.dart:633:7)
+#34     _BufferingStreamSubscription._sendData (dart:async/stream_impl.dart:381:11)
+#35     _BufferingStreamSubscription._add (dart:async/stream_impl.dart:312:7)
+#36     _SyncStreamControllerDispatch._sendData (dart:async/stream_controller.dart:798:19)
+#37     _StreamController._add (dart:async/stream_controller.dart:663:7)
+#38     _StreamController.add (dart:async/stream_controller.dart:618:5)
+#39     _Socket._onData (dart:io-patch/socket_patch.dart:2874:41)
+#40     _rootRunUnary (dart:async/zone_root.dart:56:13)
+#41     _CustomZone.runUnary (dart:async/zone.dart:733:19)
+#42     _CustomZone.runUnaryGuarded (dart:async/zone.dart:633:7)
+#43     _BufferingStreamSubscription._sendData (dart:async/stream_impl.dart:381:11)
+#44     _BufferingStreamSubscription._add (dart:async/stream_impl.dart:312:7)
+#45     _SyncStreamControllerDispatch._sendData (dart:async/stream_controller.dart:798:19)
+#46     _StreamController._add (dart:async/stream_controller.dart:663:7)
+#47     _StreamController.add (dart:async/stream_controller.dart:618:5)
+#48     new _RawSocket.<anonymous closure> (dart:io-patch/socket_patch.dart:2312:31)
+#49     _NativeSocket.issueReadEvent.issue (dart:io-patch/socket_patch.dart:1647:14)
+#50     _microtaskLoop (dart:async/schedule_microtask.dart:40:35)
+#51     _startMicrotaskLoop (dart:async/schedule_microtask.dart:49:5)
+#52     _runPendingImmediateCallback (dart:isolate-patch/isolate_patch.dart:127:13)
+#53     _RawReceivePort._handleMessage (dart:isolate-patch/isolate_patch.dart:193:5)
+```
+
+## flutter doctor
+
+```
+[32m[✓][39m Flutter (Channel stable, 3.44.5, on Microsoft Windows [Version 10.0.26200.8875], locale en-US) [23.2s]
+    [32m•[39m Flutter version 3.44.5 on channel stable at C:\flutter
+    [32m•[39m Upstream repository https://github.com/flutter/flutter.git
+    [32m•[39m Framework revision f94f4fc76b (7 weeks ago), 2026-07-06 11:19:24 -0700
+    [32m•[39m Engine revision 83675ed276
+    [32m•[39m Dart version 3.12.2
+    [32m•[39m DevTools version 2.57.0
+    [32m•[39m Feature flags: enable-web, enable-linux-desktop, enable-macos-desktop, enable-windows-desktop, enable-android, enable-ios, cli-animations,
+      enable-native-assets, enable-swift-package-manager, omit-legacy-version-file, enable-lldb-debugging, enable-uiscene-migration
+
+[32m[✓][39m Windows Version (Windows 11 or higher, 25H2, 2009) [81.5s]
+
+[32m[✓][39m Android toolchain - develop for Android devices (Android SDK version 36.1.0) [94.1s]
+    [32m•[39m Android SDK at C:\Users\engrd\AppData\Local\Android\sdk
+    [32m•[39m Emulator version 36.6.11.0 (build_id 15507667) (CL:N/A)
+    [32m•[39m Platform android-36.1, build-tools 36.1.0
+    [32m•[39m Java binary at: C:\Program Files\Android\Android Studio\jbr\bin\java
+      This is the JDK bundled with the latest Android Studio installation on this machine.
+      To manually set the JDK path, use: `flutter config --jdk-dir="path/to/jdk"`.
+    [32m•[39m Java version OpenJDK Runtime Environment (build 21.0.10+-14961533-b1163.108)
+    [32m•[39m All Android licenses accepted.
+
+[32m[✓][39m Chrome - develop for the web [4.0s]
+    [32m•[39m Chrome at C:\Program Files\Google\Chrome\Application\chrome.exe
+
+[31m[✗][39m Visual Studio - develop Windows apps [4.0s]
+    [31m✗[39m Visual Studio not installed; this is necessary to develop Windows apps.
+      Download at https://visualstudio.microsoft.com/downloads/.
+      Please install the "Desktop development with C++" workload, including all of its default components
+
+[32m[✓][39m Connected device (4 available) [17.0s]
+    [32m•[39m Infinix X6725 (mobile) • 1489855587025851 • android-arm64  • Android 15 (API 35)
+    [32m•[39m Windows (desktop)      • windows          • windows-x64    • Microsoft Windows [Version 10.0.26200.8875]
+    [32m•[39m Chrome (web)           • chrome           • web-javascript • Google Chrome 151.0.7922.174
+    [32m•[39m Edge (web)             • edge             • web-javascript • Microsoft Edge 151.0.4129.93
+
+[32m[✓][39m Network resources [4.2s]
+    [32m•[39m All expected network resources are available.
+
+[33m![39m Doctor found issues in 1 category.
+```

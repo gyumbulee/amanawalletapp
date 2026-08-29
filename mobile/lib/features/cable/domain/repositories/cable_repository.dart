@@ -17,5 +17,6 @@ abstract class CableRepository {
     required String variationCode,
     required String phone,
     required String transactionPin,
+    required String idempotencyKey,
   });
 }

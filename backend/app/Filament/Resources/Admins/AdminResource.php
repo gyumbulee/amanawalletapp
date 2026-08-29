@@ -6,7 +6,9 @@ use App\Filament\Resources\Admins\Pages\CreateAdmin;
 use App\Filament\Resources\Admins\Pages\EditAdmin;
 use App\Filament\Resources\Admins\Pages\ListAdmins;
 use App\Models\Admin;
-use BackedEnum;
+use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Placeholder;
+use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -15,8 +17,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
-use Illuminate\Support\Facades\Hash;
-use Spatie\Permission\Models\Role;
+use BackedEnum;
 use UnitEnum;
 
 class AdminResource extends Resource
@@ -32,17 +33,39 @@ class AdminResource extends Resource
         return $schema->components([
             TextInput::make('name')->required(),
             TextInput::make('email')->email()->required()->unique(ignoreRecord: true),
-            TextInput::make('password')
-                ->password()
-                ->required(fn (string $operation) => $operation === 'create')
-                ->dehydrated(fn ($state) => filled($state))
-                ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                ->helperText('Leave blank to keep the current password when editing.'),
+
+            Placeholder::make('password_note')
+                ->label('Password')
+                ->content('A secure password is generated automatically and emailed to this admin. Use "Reset & Email Password" on the edit page to issue a new one.')
+                ->visible(fn (string $operation) => $operation === 'create'),
+
             Select::make('roles')
-                ->relationship('roles', 'name')
-                ->options(fn () => Role::where('guard_name', 'admin')->pluck('name', 'name'))
-                ->multiple()
-                ->preload(),
+                ->label('Role')
+                ->relationship(
+                    name: 'roles',
+                    titleAttribute: 'name',
+                    modifyQueryUsing: fn ($query) => $query->where('guard_name', 'admin'),
+                )
+                ->getOptionLabelFromRecordUsing(fn ($record) => str($record->name)->headline())
+                ->required()
+                ->native(false)
+                ->helperText('Super Admin always has full access, regardless of the checklist below.'),
+
+            Section::make('Access Permissions')
+                ->description('Tick everything this admin should be able to do. Ignored if Role = Super Admin.')
+                ->schema([
+                    CheckboxList::make('permissions')
+                        ->label('')
+                        ->relationship(
+                            name: 'permissions',
+                            titleAttribute: 'name',
+                            modifyQueryUsing: fn ($query) => $query->where('guard_name', 'admin'),
+                        )
+                        ->columns(2)
+                        ->gridDirection('row'),
+                ])
+                ->collapsible(),
+
             Toggle::make('is_active')->default(true),
         ]);
     }
@@ -54,6 +77,10 @@ class AdminResource extends Resource
                 TextColumn::make('name'),
                 TextColumn::make('email')->searchable(),
                 TextColumn::make('roles.name')->badge(),
+                TextColumn::make('permissions_count')
+                    ->label('Permissions')
+                    ->counts('permissions')
+                    ->badge(),
                 ToggleColumn::make('is_active')->label('Active'),
                 TextColumn::make('created_at')->dateTime()->sortable(),
             ]);

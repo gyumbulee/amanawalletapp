@@ -6,4 +6,5 @@ enum EducationType: string
 {
     case Jamb = 'jamb';
     case Waec = 'waec';
+    case WaecRegistration = 'waec-registration';
 }

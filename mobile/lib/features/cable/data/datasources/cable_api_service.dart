@@ -25,13 +25,18 @@ class CableApiService {
     required String variationCode,
     required String phone,
     required String transactionPin,
+    required String idempotencyKey,
   }) {
-    return _dio.post(ApiEndpoints.cablePurchase, data: {
-      'cable_provider': provider,
-      'smartcard_number': smartCardNumber,
-      'variation_code': variationCode,
-      'phone': phone,
-      'pin': transactionPin,
-    });
+    return _dio.post(
+      ApiEndpoints.cablePurchase,
+      data: {
+        'cable_provider': provider,
+        'smartcard_number': smartCardNumber,
+        'variation_code': variationCode,
+        'phone': phone,
+        'pin': transactionPin,
+      },
+      options: Options(headers: {'Idempotency-Key': idempotencyKey}),
+    );
   }
 }
