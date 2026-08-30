@@ -14,16 +14,33 @@ use RuntimeException;
 
 class DataController extends Controller
 {
-    public function __construct(protected DataService $dataService) {}
+    public function __construct(protected DataService $dataService)
+    {
+    }
 
-    public function plans(Request $request): JsonResponse
+    public function categories(Request $request): JsonResponse
     {
         $request->validate([
             'network' => ['required', new Enum(AirtimeNetwork::class)],
         ]);
 
+        $categories = $this->dataService->listCategories($request->query('network'));
+
+        return response()->json(['categories' => $categories]);
+    }
+
+    public function plans(Request $request): JsonResponse
+    {
+        $request->validate([
+            'network' => ['required', new Enum(AirtimeNetwork::class)],
+            'category' => ['nullable', 'string'],
+        ]);
+
         try {
-            $plans = $this->dataService->listPlans($request->query('network'));
+            $plans = $this->dataService->listPlans(
+                $request->query('network'),
+                $request->query('category'),
+            );
 
             return response()->json(['plans' => $plans]);
         } catch (RuntimeException $e) {

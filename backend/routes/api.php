@@ -69,6 +69,7 @@ Route::prefix('v1')->middleware('maintenance')->group(function () {
     });
 
     Route::middleware('auth:sanctum')->prefix('data')->group(function () {
+        Route::get('categories', [DataController::class, 'categories']);
         Route::get('plans', [DataController::class, 'plans']);
         Route::post('purchase', [DataController::class, 'purchase'])
             ->middleware('idempotent')->name('data.purchase');

@@ -3,9 +3,12 @@ import '../../../../constants/network_provider.dart';
 import '../../domain/entities/data_plan.dart';
 import 'data_repository_provider.dart';
 
-/// Plans for a given network, fetched on demand. `.family` keys the cache
-/// per network so switching between MTN/Glo/Airtel/9mobile on the same
-/// screen doesn't refetch every time the user flips back.
-final dataPlansProvider = FutureProvider.family<List<DataPlan>, NetworkProvider>((ref, network) {
-  return ref.watch(dataRepositoryProvider).getPlans(network: network);
+/// Plans for a given (network, category), fetched on demand. Keyed by a
+/// record so switching network OR category reuses the cache correctly —
+/// category is nullable only as a safety fallback; the screen always
+/// picks a category before this is watched.
+typedef DataPlansQuery = ({NetworkProvider network, String? category});
+
+final dataPlansProvider = FutureProvider.family<List<DataPlan>, DataPlansQuery>((ref, query) {
+  return ref.watch(dataRepositoryProvider).getPlans(network: query.network, category: query.category);
 });

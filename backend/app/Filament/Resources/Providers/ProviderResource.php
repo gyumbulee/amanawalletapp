@@ -4,7 +4,6 @@ namespace App\Filament\Resources\Providers;
 
 use App\Filament\Resources\Providers\Pages\ListProviders;
 use App\Models\Provider;
-use BackedEnum;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Resources\Resource;
@@ -12,6 +11,7 @@ use Filament\Schemas\Schema;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
+use BackedEnum;
 use UnitEnum;
 
 class ProviderResource extends Resource
@@ -33,13 +33,6 @@ class ProviderResource extends Resource
                 ->required()
                 ->disabled(),
 
-            TextInput::make('priority')
-                ->numeric()
-                ->required()
-                ->helperText(
-                    'Lower number = tried first when multiple providers support a service.'
-                ),
-
             TextInput::make('retry_attempts')
                 ->numeric()
                 ->required()
@@ -52,7 +45,11 @@ class ProviderResource extends Resource
                 ->required(),
 
             Toggle::make('is_active')
-                ->label('Active'),
+                ->label('Active')
+                ->helperText(
+                    'Global kill-switch — turning this off disables the provider for every service, ' .
+                    'regardless of the per-service priority settings below.'
+                ),
         ]);
     }
 
@@ -62,7 +59,6 @@ class ProviderResource extends Resource
             ->columns([
                 TextColumn::make('name'),
                 TextColumn::make('slug')->badge(),
-                TextColumn::make('priority'),
                 TextColumn::make('timeout_seconds')
                     ->label('Timeout (s)'),
                 ToggleColumn::make('is_active')

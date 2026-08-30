@@ -36,6 +36,7 @@ class ApiEndpoints {
   static const airtimePurchase = '/airtime/purchase';
   static const dataPurchase = '/data/purchase';
   static const dataPlans = '/data/plans';
+  static const dataCategories = '/data/categories';
   static const electricityValidate = '/electricity/verify-meter';
   static const electricityPurchase = '/electricity/purchase';
   static const cablePlans = '/cable/plans';

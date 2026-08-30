@@ -45,11 +45,13 @@ class DataPlanTile extends StatelessWidget {
                       color: AppColors.textPrimary,
                     ),
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    plan.validityLabel,
-                    style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
-                  ),
+                  if (plan.validityLabel.isNotEmpty) ...[
+                    const SizedBox(height: 2),
+                    Text(
+                      plan.validityLabel,
+                      style: const TextStyle(color: AppColors.textSecondary, fontSize: 12),
+                    ),
+                  ],
                 ],
               ),
             ),

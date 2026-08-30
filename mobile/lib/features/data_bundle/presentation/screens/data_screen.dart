@@ -15,8 +15,10 @@ import '../../../../shared/widgets/inputs/app_text_field.dart';
 import '../../../../shared/widgets/loaders/skeleton_loader.dart';
 import '../../../../shared/widgets/responsive_scaffold.dart';
 import '../../domain/entities/data_plan.dart';
+import '../providers/data_categories_provider.dart';
 import '../providers/data_plans_provider.dart';
 import '../providers/data_purchase_controller.dart';
+import '../widgets/data_category_chips.dart';
 import '../widgets/data_plan_tile.dart';
 
 class DataScreen extends ConsumerStatefulWidget {
@@ -32,6 +34,7 @@ class _DataScreenState extends ConsumerState<DataScreen> {
 
   NetworkProvider _network = NetworkProvider.mtn;
   DataPlan? _selectedPlan;
+  String? _selectedCategory;
 
   @override
   void dispose() {
@@ -45,6 +48,7 @@ class _DataScreenState extends ConsumerState<DataScreen> {
       setState(() {
         _network = detected;
         _selectedPlan = null; // plan list changes with network
+        _selectedCategory = null; // categories change with network too
       });
     }
   }
@@ -54,6 +58,15 @@ class _DataScreenState extends ConsumerState<DataScreen> {
     setState(() {
       _network = network;
       _selectedPlan = null;
+      _selectedCategory = null;
+    });
+  }
+
+  void _onCategorySelected(String category) {
+    if (category == _selectedCategory) return;
+    setState(() {
+      _selectedCategory = category;
+      _selectedPlan = null; // previous selection likely isn't in the new category
     });
   }
 
@@ -73,7 +86,7 @@ class _DataScreenState extends ConsumerState<DataScreen> {
       summaryLines: [
         ('Network', _network.label),
         ('Phone', phone),
-        ('Plan', '${plan.sizeLabel} • ${plan.validityLabel}'),
+        ('Plan', plan.validityLabel.isEmpty ? plan.sizeLabel : '${plan.sizeLabel} • ${plan.validityLabel}'),
       ],
       amountKobo: plan.priceKobo,
       onConfirm: (pin) async {
@@ -109,7 +122,7 @@ class _DataScreenState extends ConsumerState<DataScreen> {
   Widget build(BuildContext context) {
     final purchaseState = ref.watch(dataPurchaseControllerProvider);
     final isSubmitting = purchaseState.isLoading;
-    final plansAsync = ref.watch(dataPlansProvider(_network));
+    final categoriesAsync = ref.watch(dataCategoriesProvider(_network));
 
     return ResponsiveScaffold(
       appBar: AppBar(title: const Text('Buy Data')),
@@ -138,42 +151,50 @@ class _DataScreenState extends ConsumerState<DataScreen> {
                 },
               ),
               const SizedBox(height: 24),
-              const Text('Select Plan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+              const Text('Plan Type', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
               const SizedBox(height: 12),
-              plansAsync.when(
-                loading: () => Column(
-                  children: List.generate(
-                    4,
-                    (_) => const Padding(
-                      padding: EdgeInsets.only(bottom: 10),
-                      child: SkeletonLoader(height: 64, borderRadius: BorderRadius.all(Radius.circular(16))),
-                    ),
-                  ),
-                ),
+              categoriesAsync.when(
+                loading: () => const SkeletonLoader(height: 40, borderRadius: BorderRadius.all(Radius.circular(20))),
                 error: (error, _) => EmptyState(
                   icon: Icons.error_outline_rounded,
-                  message: 'Could not load ${_network.label} data plans.',
+                  message: 'Could not load ${_network.label} plan types.',
                   actionLabel: 'Retry',
-                  onAction: () => ref.invalidate(dataPlansProvider(_network)),
+                  onAction: () => ref.invalidate(dataCategoriesProvider(_network)),
                 ),
-                data: (plans) {
-                  if (plans.isEmpty) {
+                data: (categories) {
+                  if (categories.isEmpty) {
                     return const EmptyState(
                       icon: Icons.wifi_off_rounded,
                       message: 'No data plans available for this network right now.',
                     );
                   }
+
+                  // Default to the first category so the user sees plans
+                  // immediately, without a mandatory extra tap.
+                  final effectiveCategory = _selectedCategory ?? categories.first.key;
+                  if (_selectedCategory == null) {
+                    WidgetsBinding.instance.addPostFrameCallback((_) {
+                      if (mounted) setState(() => _selectedCategory = effectiveCategory);
+                    });
+                  }
+
                   return Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      for (final plan in plans)
-                        Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: DataPlanTile(
-                            plan: plan,
-                            isSelected: _selectedPlan?.id == plan.id,
-                            onTap: () => setState(() => _selectedPlan = plan),
-                          ),
-                        ),
+                      DataCategoryChips(
+                        categories: categories,
+                        selected: effectiveCategory,
+                        onSelected: _onCategorySelected,
+                      ),
+                      const SizedBox(height: 20),
+                      const Text('Select Plan', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 15)),
+                      const SizedBox(height: 12),
+                      _PlansList(
+                        network: _network,
+                        category: effectiveCategory,
+                        selectedPlan: _selectedPlan,
+                        onSelect: (plan) => setState(() => _selectedPlan = plan),
+                      ),
                     ],
                   );
                 },
@@ -189,6 +210,66 @@ class _DataScreenState extends ConsumerState<DataScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Broken out so its FutureProvider.family watch doesn't rebuild the whole
+/// screen (network selector, phone field, etc.) on every plan fetch.
+class _PlansList extends ConsumerWidget {
+  const _PlansList({
+    required this.network,
+    required this.category,
+    required this.selectedPlan,
+    required this.onSelect,
+  });
+
+  final NetworkProvider network;
+  final String category;
+  final DataPlan? selectedPlan;
+  final ValueChanged<DataPlan> onSelect;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final plansAsync = ref.watch(dataPlansProvider((network: network, category: category)));
+
+    return plansAsync.when(
+      loading: () => Column(
+        children: List.generate(
+          4,
+          (_) => const Padding(
+            padding: EdgeInsets.only(bottom: 10),
+            child: SkeletonLoader(height: 64, borderRadius: BorderRadius.all(Radius.circular(16))),
+          ),
+        ),
+      ),
+      error: (error, _) => EmptyState(
+        icon: Icons.error_outline_rounded,
+        message: 'Could not load plans.',
+        actionLabel: 'Retry',
+        onAction: () => ref.invalidate(dataPlansProvider((network: network, category: category))),
+      ),
+      data: (plans) {
+        if (plans.isEmpty) {
+          return const EmptyState(
+            icon: Icons.wifi_off_rounded,
+            message: 'No plans available in this category right now.',
+          );
+        }
+        return Column(
+          children: [
+            for (final plan in plans)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: DataPlanTile(
+                  plan: plan,
+                  isSelected: selectedPlan?.id == plan.id,
+                  onTap: () => onSelect(plan),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }

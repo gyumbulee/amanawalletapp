@@ -24,6 +24,8 @@ class DataPlanModel {
       sizeLabel: match != null ? match.group(1)!.trim() : rawName,
       validityLabel: match != null ? match.group(2)!.trim() : '',
       priceKobo: _nairaToKobo(json['amount']),
+      category: json['category'] as String? ?? 'other',
+      categoryLabel: json['category_label'] as String? ?? 'Other',
     );
   }
 

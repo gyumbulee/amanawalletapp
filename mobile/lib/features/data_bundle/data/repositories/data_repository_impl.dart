@@ -3,8 +3,10 @@ import '../../../../core/network/error_mapper.dart';
 import '../../../transactions/data/models/transaction_model.dart';
 import '../../../transactions/domain/entities/transaction.dart';
 import '../../domain/entities/data_plan.dart';
+import '../../domain/entities/data_plan_category_info.dart';
 import '../../domain/repositories/data_repository.dart';
 import '../datasources/data_api_service.dart';
+import '../models/data_plan_category_info_model.dart';
 import '../models/data_plan_model.dart';
 
 class DataRepositoryImpl implements DataRepository {
@@ -12,9 +14,25 @@ class DataRepositoryImpl implements DataRepository {
   final DataApiService _api;
 
   @override
-  Future<List<DataPlan>> getPlans({required NetworkProvider network}) async {
+  Future<List<DataPlanCategoryInfo>> getCategories({required NetworkProvider network}) async {
     try {
-      final response = await _api.getPlans(network: network.apiValue);
+      final response = await _api.getCategories(network: network.apiValue);
+      final raw = response.data;
+      final List<dynamic> rawList = raw is Map<String, dynamic>
+          ? (raw['categories'] ?? const []) as List
+          : const [];
+      return rawList
+          .map((e) => DataPlanCategoryInfoModel.fromJson(e as Map<String, dynamic>))
+          .toList();
+    } catch (e) {
+      throw ErrorMapper.map(e);
+    }
+  }
+
+  @override
+  Future<List<DataPlan>> getPlans({required NetworkProvider network, String? category}) async {
+    try {
+      final response = await _api.getPlans(network: network.apiValue, category: category);
       final raw = response.data;
       // Accept a bare list, or a map wrapped under "data"/"plans".
       final List<dynamic> rawList = raw is List

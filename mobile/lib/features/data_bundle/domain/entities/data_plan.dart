@@ -12,6 +12,8 @@ class DataPlan extends Equatable {
     required this.sizeLabel,
     required this.validityLabel,
     required this.priceKobo,
+    required this.category,
+    required this.categoryLabel,
   });
 
   final String id;
@@ -20,7 +22,14 @@ class DataPlan extends Equatable {
   final String sizeLabel;
   final String validityLabel;
   final int priceKobo;
+  // e.g. 'sme', 'gifting', 'cgifting', 'data_transfer', 'other' — matches
+  // the backend's DataPlanCategory enum. Used to group the plan list so
+  // the user picks a category (SME, Gifting, ...) before seeing plans,
+  // instead of scrolling a flat list of 40+ options per network.
+  final String category;
+  final String categoryLabel;
 
   @override
-  List<Object?> get props => [id, network, name, sizeLabel, validityLabel, priceKobo];
+  List<Object?> get props =>
+      [id, network, name, sizeLabel, validityLabel, priceKobo, category, categoryLabel];
 }

@@ -2,16 +2,16 @@
 
 namespace App\Services;
 
-use App\Models\Provider;
+use App\Services\Concerns\ResolvesProvidersByService;
 use App\Services\Providers\BigiSubElectricityProvider;
+use App\Services\Providers\VtpassElectricityProvider;
 
-/**
- * Electricity is routed to Bigisub strictly - no VTpass fallback. See
- * AirtimeProviderResolver for the full split rationale.
- */
 class ElectricityProviderResolver
 {
+    use ResolvesProvidersByService;
+
     public function __construct(
+        protected VtpassElectricityProvider $vtpass,
         protected BigiSubElectricityProvider $bigisub,
     ) {
     }
@@ -21,8 +21,9 @@ class ElectricityProviderResolver
      */
     public function resolve(): array
     {
-        $isActive = Provider::query()->where('slug', 'bigisub')->value('is_active') ?? true;
-
-        return $isActive ? ['bigisub' => $this->bigisub] : [];
+        return $this->resolveForService('electricity', [
+            'vtpass' => $this->vtpass,
+            'bigisub' => $this->bigisub,
+        ]);
     }
 }
