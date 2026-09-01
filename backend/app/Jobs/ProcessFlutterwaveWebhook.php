@@ -13,6 +13,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 use Throwable;
 
@@ -20,7 +21,9 @@ class ProcessFlutterwaveWebhook implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, SerializesModels;
 
-    public function __construct(public int $webhookId) {}
+    public function __construct(public int $webhookId)
+    {
+    }
 
     public function handle(
         UserRepositoryInterface $userRepository,
@@ -50,8 +53,24 @@ class ProcessFlutterwaveWebhook implements ShouldQueue
                     throw new \RuntimeException('Webhook payload missing required fields (customer.email/flw_ref/amount).');
                 }
 
-                // Idempotency guard: never double-credit for the same provider reference.
-                if (! WalletLedger::query()->where('reference', $providerReference)->exists()) {
+                // Atomic guard against duplicate webhook deliveries: the old
+                // "check ledger exists, then act" was not atomic, so two
+                // near-simultaneous deliveries of the same event could both
+                // pass the exists-check before either committed, each
+                // creating its own Transaction row (one would then fail on
+                // WalletLedger's unique reference constraint when crediting,
+                // leaving a Failed duplicate next to the real Successful one).
+                // Holding a lock for the full check+create+credit sequence
+                // means the second delivery re-checks under the lock and
+                // sees the first one's now-committed ledger row, so no
+                // duplicate Transaction is created at all.
+                Cache::lock("flutterwave-webhook:{$providerReference}", 30)->block(5, function () use (
+                    $providerReference, $email, $amount, $data, $userRepository, $walletService, $transactionService
+                ) {
+                    if (WalletLedger::query()->where('reference', $providerReference)->exists()) {
+                        return;
+                    }
+
                     $user = $userRepository->findByEmail($email);
 
                     if (! $user || ! $user->wallet) {
@@ -86,7 +105,7 @@ class ProcessFlutterwaveWebhook implements ShouldQueue
 
                         throw $e;
                     }
-                }
+                });
             }
 
             $webhook->update([

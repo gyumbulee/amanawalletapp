@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\AirtimeController;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\BannerController;
 use App\Http\Controllers\Api\V1\CableController;
 use App\Http\Controllers\Api\V1\DataController;
 use App\Http\Controllers\Api\V1\EducationController;
@@ -52,6 +53,8 @@ Route::prefix('v1')->middleware('maintenance')->group(function () {
         Route::get('/', [WalletController::class, 'show']);
         Route::get('ledgers', [WalletController::class, 'ledgers']);
     });
+
+    Route::middleware('auth:sanctum')->get('banners', [BannerController::class, 'index']);
 
     Route::middleware('auth:sanctum')->prefix('virtual-account')->group(function () {
         Route::get('/', [VirtualAccountController::class, 'show']);

@@ -5,6 +5,7 @@ class ApiEndpoints {
 
   // Auth
   static const register = '/auth/register';
+  static const banners = '/banners';
   static const login = '/auth/login';
   static const logout = '/auth/logout';
   static const authMe = '/auth/me';

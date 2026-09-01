@@ -7,11 +7,13 @@ class QuickActionItem extends StatelessWidget {
     required this.icon,
     required this.label,
     required this.onTap,
+    this.color = AppColors.accent,
   });
 
   final IconData icon;
   final String label;
   final VoidCallback onTap;
+  final Color color;
 
   @override
   Widget build(BuildContext context) {
@@ -27,10 +29,10 @@ class QuickActionItem extends StatelessWidget {
               height: 52,
               width: 52,
               decoration: BoxDecoration(
-                color: AppColors.accent.withValues(alpha: 0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(icon, color: AppColors.accent, size: 24),
+              child: Icon(icon, color: color, size: 24),
             ),
             const SizedBox(height: 8),
             Text(

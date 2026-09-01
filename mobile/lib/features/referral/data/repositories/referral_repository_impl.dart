@@ -31,7 +31,11 @@ class ReferralRepositoryImpl implements ReferralRepository {
     try {
       final response = await _api.getHistory(page: page);
       final data = response.data as Map<String, dynamic>;
-      final rawList = (data['data'] as List?) ?? const [];
+      // Backend wraps the list under "earnings" (see ReferralController) -
+      // this was previously reading "data", a key the backend has never
+      // actually returned, so the list silently rendered empty every time
+      // regardless of how many people were actually referred.
+      final rawList = (data['earnings'] as List?) ?? const [];
       final items = rawList.map((e) => ReferralEntryModel.fromJson(e as Map<String, dynamic>)).toList();
 
       final meta = data['meta'] as Map<String, dynamic>?;

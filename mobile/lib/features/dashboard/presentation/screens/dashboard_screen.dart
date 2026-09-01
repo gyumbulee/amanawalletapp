@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../../../routing/app_router.dart';
 import '../../../../shared/extensions/string_extensions.dart';
@@ -16,6 +17,9 @@ import '../../../transactions/presentation/providers/transaction_list_provider.d
 import '../../../transactions/presentation/widgets/transaction_list_tile.dart';
 import '../../../virtual_account/presentation/providers/virtual_account_provider.dart';
 import '../../../wallet/presentation/providers/wallet_balance_provider.dart';
+import '../../domain/entities/promo_banner.dart';
+import '../providers/banners_provider.dart';
+import '../widgets/banner_carousel.dart';
 import '../widgets/quick_action_item.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -35,17 +39,43 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return 'Good evening';
   }
 
+  // Keep in sync with the Filament BannerResource's SERVICE_LINKS options.
+  static const _serviceRoutes = {
+    'wallet_funding': AppRoutes.virtualAccount,
+    'airtime': AppRoutes.airtime,
+    'data': AppRoutes.dataBundle,
+    'electricity': AppRoutes.electricity,
+    'cable': AppRoutes.cable,
+    'education': AppRoutes.education,
+    'referral': AppRoutes.referral,
+  };
+
+  Future<void> _onBannerTap(PromoBanner banner) async {
+    if (banner.linkType == 'service') {
+      final route = _serviceRoutes[banner.linkValue];
+      if (route != null) context.push(route);
+      return;
+    }
+
+    if (banner.linkType == 'url' && banner.linkValue != null) {
+      final uri = Uri.tryParse(banner.linkValue!);
+      if (uri != null) await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final user = ref.watch(authSessionProvider);
     final balanceAsync = ref.watch(walletBalanceProvider);
     final accountAsync = ref.watch(virtualAccountProvider);
+    final bannersAsync = ref.watch(bannersProvider);
 
     return ResponsiveScaffold(
       body: RefreshIndicator(
         onRefresh: () async {
           await ref.read(walletBalanceProvider.notifier).refresh();
           ref.invalidate(virtualAccountProvider);
+          ref.invalidate(bannersProvider);
         },
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -124,6 +154,18 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            bannersAsync.when(
+              // Deliberately quiet on loading/error/empty — a promo carousel
+              // failing to load shouldn't ever block or clutter the dashboard.
+              loading: () => const SizedBox.shrink(),
+              error: (error, _) => const SizedBox.shrink(),
+              data: (banners) => banners.isEmpty
+                  ? const SizedBox.shrink()
+                  : Padding(
+                      padding: const EdgeInsets.only(bottom: 24),
+                      child: BannerCarousel(banners: banners, onTap: _onBannerTap),
+                    ),
+            ),
             const Text('Quick Actions', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
             const SizedBox(height: 12),
             GridView.count(
@@ -135,41 +177,49 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 QuickActionItem(
                   icon: Icons.add_circle_outline_rounded,
                   label: 'Fund Wallet',
+                  color: AppColors.actionFundWallet,
                   onTap: () => context.push(AppRoutes.virtualAccount),
                 ),
                 QuickActionItem(
                   icon: Icons.phone_iphone_rounded,
                   label: 'Airtime',
+                  color: AppColors.actionAirtime,
                   onTap: () => context.push(AppRoutes.airtime),
                 ),
                 QuickActionItem(
                   icon: Icons.wifi_rounded,
                   label: 'Data',
+                  color: AppColors.actionData,
                   onTap: () => context.push(AppRoutes.dataBundle),
                 ),
                 QuickActionItem(
                   icon: Icons.bolt_rounded,
                   label: 'Electricity',
+                  color: AppColors.actionElectricity,
                   onTap: () => context.push(AppRoutes.electricity),
                 ),
                 QuickActionItem(
                   icon: Icons.tv_rounded,
                   label: 'Cable TV',
+                  color: AppColors.actionCable,
                   onTap: () => context.push(AppRoutes.cable),
                 ),
                 QuickActionItem(
                   icon: Icons.school_outlined,
                   label: 'Education',
+                  color: AppColors.actionEducation,
                   onTap: () => context.push(AppRoutes.education),
                 ),
                 QuickActionItem(
                   icon: Icons.receipt_long_outlined,
                   label: 'Transactions',
+                  color: AppColors.actionTransactions,
                   onTap: () => context.push(AppRoutes.transactions),
                 ),
                 QuickActionItem(
                   icon: Icons.card_giftcard_outlined,
                   label: 'Referral',
+                  color: AppColors.actionReferral,
                   onTap: () => context.push(AppRoutes.referral),
                 ),
               ],

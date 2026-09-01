@@ -26,25 +26,32 @@ class ReferralController extends Controller
 
     public function history(Request $request): JsonResponse
     {
-        $earnings = ReferralEarning::query()
-            ->where('referrer_id', $request->user()->id)
-            ->with('referredUser:id,first_name,last_name')
+        // Was previously listing only ReferralEarning rows, which only
+        // exist once a referred user makes a qualifying (>=N1000)
+        // transaction. That made the count on the summary card disagree
+        // with an apparently-empty list whenever someone had referred
+        // people who simply hadn't transacted yet. Listing every referred
+        // user (with their bonus status) keeps the two consistent.
+        $referredUsers = User::query()
+            ->where('referred_by', $request->user()->id)
+            ->with('referralEarningTriggered')
             ->latest()
             ->paginate((int) $request->query('per_page', 20));
 
-        $data = $earnings->through(fn ($earning) => [
-            'id' => $earning->uuid,
-            'referred_user' => $earning->referredUser->first_name.' '.$earning->referredUser->last_name,
-            'amount' => (float) $earning->amount,
-            'created_at' => $earning->created_at,
+        $data = $referredUsers->through(fn (User $referred) => [
+            'id' => $referred->uuid,
+            'referee_name' => trim("{$referred->first_name} {$referred->last_name}"),
+            'status' => $referred->referralEarningTriggered ? 'completed' : 'pending',
+            'bonus_amount' => (float) ($referred->referralEarningTriggered->amount ?? 0),
+            'created_at' => $referred->created_at,
         ]);
 
         return response()->json([
             'earnings' => $data->items(),
             'meta' => [
-                'current_page' => $earnings->currentPage(),
-                'last_page' => $earnings->lastPage(),
-                'total' => $earnings->total(),
+                'current_page' => $referredUsers->currentPage(),
+                'last_page' => $referredUsers->lastPage(),
+                'total' => $referredUsers->total(),
             ],
         ]);
     }

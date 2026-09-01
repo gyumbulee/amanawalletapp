@@ -31,6 +31,20 @@ class AppColors {
   // Borders / dividers
   static const Color border = Color(0xFFE5E7EB);
 
+  // --- Quick-action icon accents (dashboard grid only) ---
+  // Distinct from the status colors above — these exist purely to make
+  // each service visually distinguishable in the grid. Deliberately not
+  // reused as status/semantic colors elsewhere, to avoid a user reading
+  // meaning (e.g. "warning") into an icon tint.
+  static const Color actionFundWallet = accent; // Royal Blue — the brand accent for the primary action
+  static const Color actionAirtime = Color(0xFF7C3AED); // Violet
+  static const Color actionData = Color(0xFF0EA5E9); // Sky Blue
+  static const Color actionElectricity = Color(0xFFF59E0B); // Amber (bolt = amber is near-universal)
+  static const Color actionCable = Color(0xFFEC4899); // Rose
+  static const Color actionEducation = Color(0xFF14B8A6); // Teal
+  static const Color actionTransactions = Color(0xFF6366F1); // Indigo
+  static const Color actionReferral = Color(0xFFF97316); // Orange
+
   // --- Dark theme counterparts ---
   // Kept close to Material dark defaults while preserving brand accent/status
   // colors, since the branding doc doesn't specify separate dark hex values.

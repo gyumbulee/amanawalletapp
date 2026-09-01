@@ -61,6 +61,17 @@ class User extends Authenticatable
         return $this->hasMany(User::class, 'referred_by');
     }
 
+    /**
+     * The bonus earning triggered by THIS user being referred (i.e. this
+     * user is the referred_user_id on the earning) - null until they make
+     * a qualifying transaction. Used to show referral status to whoever
+     * referred them.
+     */
+    public function referralEarningTriggered()
+    {
+        return $this->hasOne(ReferralEarning::class, 'referred_user_id');
+    }
+
     public function wallet()
     {
         return $this->hasOne(Wallet::class);
