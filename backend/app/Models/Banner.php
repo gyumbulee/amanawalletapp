@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Storage;
 
 class Banner extends Model
 {
@@ -24,7 +23,12 @@ class Banner extends Model
 
     public function imageUrl(): string
     {
-        return Storage::disk('public')->url($this->image_path);
+        // Not Storage::disk('public')->url() - that points at the raw
+        // /storage symlink, which is served as a static file and never
+        // gets Laravel's CORS headers attached (breaks Flutter Web
+        // specifically). This route goes through BannerImageController
+        // instead, which explicitly sets Access-Control-Allow-Origin.
+        return url('/api/v1/banner-images/' . basename($this->image_path));
     }
 
     public function scopeCurrentlyActive(Builder $query): Builder

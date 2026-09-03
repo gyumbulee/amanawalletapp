@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\AirtimeController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\BannerController;
+use App\Http\Controllers\Api\V1\BannerImageController;
 use App\Http\Controllers\Api\V1\CableController;
 use App\Http\Controllers\Api\V1\DataController;
 use App\Http\Controllers\Api\V1\EducationController;
@@ -22,6 +23,11 @@ Route::prefix('v1/webhooks')->group(function () {
     Route::post('flutterwave', [WebhookController::class, 'flutterwave']);
     Route::post('vtpass', [WebhookController::class, 'vtpass']);
 });
+
+// Deliberately public + outside auth:sanctum: <img> tags, CachedNetworkImage,
+// and direct browser navigation can't attach a bearer token, and these are
+// promotional images meant to be publicly visible anyway.
+Route::get('v1/banner-images/{filename}', [BannerImageController::class, 'show']);
 
 Route::prefix('v1')->middleware('maintenance')->group(function () {
 
