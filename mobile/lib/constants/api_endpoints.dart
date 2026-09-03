@@ -9,7 +9,10 @@ class ApiEndpoints {
   static const login = '/auth/login';
   static const logout = '/auth/logout';
   static const authMe = '/auth/me';
-  static const verifyOtp = '/auth/verify-otp';
+  // NOTE: named verifyOtp for readability in the Dart code (the flow is an
+  // OTP the user types in), but the backend route is /auth/verify-email —
+  // there is no separate /auth/verify-otp endpoint.
+  static const verifyOtp = '/auth/verify-email';
   static const resendOtp = '/auth/resend-otp';
   static const forgotPassword = '/auth/forgot-password';
   static const resetPassword = '/auth/reset-password';
@@ -24,7 +27,7 @@ class ApiEndpoints {
 
   // Wallet
   static const walletBalance = '/wallet';
-  static const walletLedger = '/wallet/ledger';
+  static const walletLedger = '/wallet/ledgers';
 
   // Virtual account
   static const virtualAccount = '/virtual-account';

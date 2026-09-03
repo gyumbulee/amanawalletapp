@@ -14,6 +14,10 @@ use Illuminate\Validation\ValidationException;
 
 class WalletService
 {
+    private const MAX_PIN_ATTEMPTS = 5;
+
+    private const PIN_LOCKOUT_MINUTES = 15;
+
     public function __construct(
         protected WalletRepositoryInterface $walletRepository
     ) {}
@@ -67,6 +71,11 @@ class WalletService
      * Verify a transaction PIN before any debit-based purchase. Every
      * purchase flow (Airtime, Data, Electricity, Cable, Education) must
      * call this before debiting the wallet.
+     *
+     * Locks the wallet's PIN for PIN_LOCKOUT_MINUTES after MAX_PIN_ATTEMPTS
+     * consecutive wrong guesses, so a stolen bearer token can't be used to
+     * brute-force a 4-digit PIN (10,000 combinations is trivial without
+     * this - route-level throttling alone isn't enough).
      */
     public function verifyPin(Wallet $wallet, string $pin): void
     {
@@ -76,10 +85,40 @@ class WalletService
             ]);
         }
 
-        if (! Hash::check($pin, $wallet->pin)) {
+        if ($wallet->pin_locked_until && $wallet->pin_locked_until->isFuture()) {
+            $minutesLeft = max(1, now()->diffInMinutes($wallet->pin_locked_until, true));
+
             throw ValidationException::withMessages([
-                'pin' => ['Incorrect transaction PIN.'],
+                'pin' => ["Too many incorrect PIN attempts. Try again in {$minutesLeft} minute(s)."],
             ]);
+        }
+
+        if (! Hash::check($pin, $wallet->pin)) {
+            // Atomic increment - avoids a fetch-then-write race letting two
+            // near-simultaneous wrong guesses both slip in under the limit.
+            $wallet->increment('pin_failed_attempts');
+            $attempts = $wallet->fresh()->pin_failed_attempts;
+
+            if ($attempts >= self::MAX_PIN_ATTEMPTS) {
+                $wallet->update([
+                    'pin_locked_until' => now()->addMinutes(self::PIN_LOCKOUT_MINUTES),
+                    'pin_failed_attempts' => 0,
+                ]);
+
+                throw ValidationException::withMessages([
+                    'pin' => ['Too many incorrect PIN attempts. Your PIN has been locked for '.self::PIN_LOCKOUT_MINUTES.' minutes.'],
+                ]);
+            }
+
+            $remaining = self::MAX_PIN_ATTEMPTS - $attempts;
+
+            throw ValidationException::withMessages([
+                'pin' => ["Incorrect transaction PIN. {$remaining} attempt(s) remaining before lockout."],
+            ]);
+        }
+
+        if ($wallet->pin_failed_attempts > 0 || $wallet->pin_locked_until) {
+            $wallet->update(['pin_failed_attempts' => 0, 'pin_locked_until' => null]);
         }
     }
 

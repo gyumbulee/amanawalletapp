@@ -1,0 +1,18 @@
+# Copy this file to android/key.properties (same folder) and fill in your
+# real values. android/key.properties is gitignored — never commit it or
+# the .jks/.keystore file itself.
+#
+# 1) Generate a release keystore (do this once, keep it somewhere safe and
+#    backed up outside the repo — losing it means you can never publish an
+#    update to this app under the same Play Store listing again):
+#
+#      keytool -genkey -v -keystore ~/amana-wallet-release.jks \
+#        -keyalg RSA -keysize 2048 -validity 10000 -alias amanawallet
+#
+# 2) Fill in the paths/passwords below. storeFile can be an absolute path
+#    or relative to the android/ folder.
+
+storePassword=CHANGE_ME
+keyPassword=CHANGE_ME
+keyAlias=amanawallet
+storeFile=/absolute/path/to/amana-wallet-release.jks

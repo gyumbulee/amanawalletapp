@@ -20,3 +20,11 @@ ios/.symlinks/
 *.g.dart
 *.freezed.dart
 .env
+
+# JVM/Gradle crash dumps and Flutter crash reports — never intentional,
+# just debris left behind by a crashed build/run. ~2.8MB of these were
+# accidentally committed (android/hs_err_pid*.log, android/replay_pid*.log,
+# flutter_01.log) — remove those with `git rm` alongside this change.
+hs_err_pid*.log
+replay_pid*.log
+flutter_*.log

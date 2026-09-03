@@ -28,6 +28,7 @@ class Wallet extends Model
         return [
             'balance' => 'decimal:2',
             'status' => WalletStatus::class,
+            'pin_locked_until' => 'datetime',
         ];
     }
 

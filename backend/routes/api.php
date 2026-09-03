@@ -11,7 +11,6 @@ use App\Http\Controllers\Api\V1\ElectricityController;
 use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ProfileController;
 use App\Http\Controllers\Api\V1\ReferralController;
-use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SupportTicketController;
 use App\Http\Controllers\Api\V1\TransactionController;
 use App\Http\Controllers\Api\V1\VirtualAccountController;
@@ -74,34 +73,37 @@ Route::prefix('v1')->middleware('maintenance')->group(function () {
 
     Route::middleware('auth:sanctum')->prefix('airtime')->group(function () {
         Route::post('purchase', [AirtimeController::class, 'purchase'])
-            ->middleware('idempotent')->name('airtime.purchase');
+            ->middleware(['idempotent', 'throttle:15,1'])->name('airtime.purchase');
     });
 
     Route::middleware('auth:sanctum')->prefix('data')->group(function () {
         Route::get('categories', [DataController::class, 'categories']);
         Route::get('plans', [DataController::class, 'plans']);
         Route::post('purchase', [DataController::class, 'purchase'])
-            ->middleware('idempotent')->name('data.purchase');
+            ->middleware(['idempotent', 'throttle:15,1'])->name('data.purchase');
     });
 
     Route::middleware('auth:sanctum')->prefix('electricity')->group(function () {
-        Route::post('verify-meter', [ElectricityController::class, 'verifyMeter']);
+        Route::post('verify-meter', [ElectricityController::class, 'verifyMeter'])
+            ->middleware('throttle:20,1');
         Route::post('purchase', [ElectricityController::class, 'purchase'])
-            ->middleware('idempotent')->name('electricity.purchase');
+            ->middleware(['idempotent', 'throttle:15,1'])->name('electricity.purchase');
     });
 
     Route::middleware('auth:sanctum')->prefix('cable')->group(function () {
         Route::get('plans', [CableController::class, 'plans']);
-        Route::post('verify-smartcard', [CableController::class, 'verifySmartcard']);
+        Route::post('verify-smartcard', [CableController::class, 'verifySmartcard'])
+            ->middleware('throttle:20,1');
         Route::post('purchase', [CableController::class, 'purchase'])
-            ->middleware('idempotent')->name('cable.purchase');
+            ->middleware(['idempotent', 'throttle:15,1'])->name('cable.purchase');
     });
 
     Route::middleware('auth:sanctum')->prefix('education')->group(function () {
         Route::get('plans', [EducationController::class, 'plans']);
-        Route::post('verify-profile', [EducationController::class, 'verifyProfile']);
+        Route::post('verify-profile', [EducationController::class, 'verifyProfile'])
+            ->middleware('throttle:20,1');
         Route::post('purchase', [EducationController::class, 'purchase'])
-            ->middleware('idempotent')->name('education.purchase');
+            ->middleware(['idempotent', 'throttle:15,1'])->name('education.purchase');
     });
 
     Route::middleware('auth:sanctum')->prefix('referrals')->group(function () {
@@ -123,16 +125,12 @@ Route::prefix('v1')->middleware('maintenance')->group(function () {
         Route::post('tickets/{uuid}/messages', [SupportTicketController::class, 'addMessage']);
     });
 
-    // TODO: restrict to admin role once the roles/permissions system is built in Phase 14.
-    Route::middleware('auth:sanctum')->prefix('reports')->group(function () {
-        Route::get('daily-sales', [ReportController::class, 'dailySales']);
-        Route::get('weekly-sales', [ReportController::class, 'weeklySales']);
-        Route::get('monthly-sales', [ReportController::class, 'monthlySales']);
-        Route::get('revenue', [ReportController::class, 'revenue']);
-        Route::get('wallet-funding', [ReportController::class, 'walletFunding']);
-        Route::get('service-sales', [ReportController::class, 'serviceSales']);
-        Route::get('user-growth', [ReportController::class, 'userGrowth']);
-        Route::get('export', [ReportController::class, 'export']);
-    });
+    // Deliberately not exposed here: business-wide report data (revenue,
+    // user growth, service sales) has no business being reachable by a
+    // customer's Sanctum token. Reports are admin-only and live entirely
+    // inside the Filament panel (App\Filament\Pages\ViewReports), which
+    // calls ReportService and generates CSV/PDF exports directly rather
+    // than going through this API. If a future need arises to expose
+    // reports over HTTP, gate it behind the 'admin' guard, not 'sanctum'.
 
 });

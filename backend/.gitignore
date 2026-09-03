@@ -25,3 +25,9 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Local curl test fixtures and report export scratch files — useful to keep
+# on disk for testing, not useful to track in git.
+webhook_test.json
+service-sales*.csv
+service-sales*.pdf
