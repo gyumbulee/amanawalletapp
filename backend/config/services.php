@@ -39,6 +39,16 @@ return [
     'webhook_secret_hash' => env('FLUTTERWAVE_WEBHOOK_SECRET_HASH'),
     ],
 
+    'fcm' => [
+        // Path to the Firebase service account JSON (Firebase Console ->
+        // Project Settings -> Service Accounts -> Generate new private
+        // key). Never commit this file - store it outside the repo on the
+        // server (e.g. /home/forge/secrets/firebase.json) and point this
+        // env var at the absolute path.
+        'credentials_path' => env('FCM_CREDENTIALS_PATH'),
+        'project_id' => env('FCM_PROJECT_ID'),
+    ],
+
     'resend' => [
         'key' => env('RESEND_API_KEY'),
     ],

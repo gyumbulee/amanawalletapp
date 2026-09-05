@@ -77,6 +77,11 @@ class User extends Authenticatable
         return $this->hasOne(Wallet::class);
     }
 
+    public function deviceTokens()
+    {
+        return $this->hasMany(DeviceToken::class);
+    }
+
     public function virtualAccount()
     {
         return $this->hasOne(VirtualAccount::class);

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../constants/network_provider.dart';
-import '../../../../core/errors/failure.dart';
-import '../../../../routing/app_router.dart';
 import '../../../../shared/extensions/context_extensions.dart';
 import '../../../../shared/extensions/string_extensions.dart';
 import '../../../../shared/widgets/bill_payment/network_selector.dart';
 import '../../../../shared/widgets/bill_payment/pin_confirm_sheet.dart';
+import '../../../../shared/widgets/bill_payment/purchase_result_handler.dart';
 import '../../../../shared/widgets/buttons/primary_button.dart';
 import '../../../../shared/widgets/empty_states/empty_state.dart';
 import '../../../../shared/widgets/inputs/app_text_field.dart';
@@ -89,6 +87,7 @@ class _DataScreenState extends ConsumerState<DataScreen> {
         ('Plan', plan.validityLabel.isEmpty ? plan.sizeLabel : '${plan.sizeLabel} • ${plan.validityLabel}'),
       ],
       amountKobo: plan.priceKobo,
+      controller: dataPurchaseControllerProvider,
       onConfirm: (pin) async {
         await ref.read(dataPurchaseControllerProvider.notifier).purchase(
               network: _network,
@@ -102,16 +101,12 @@ class _DataScreenState extends ConsumerState<DataScreen> {
         state.whenOrNull(
           data: (transaction) {
             if (transaction == null) return;
-            Navigator.of(context).pop();
             ref.read(dataPurchaseControllerProvider.notifier).reset();
-            context.showSnack('Data purchase successful');
-            context.pushReplacement(AppRoutes.transactionDetail(transaction.id));
+            handleBillPaymentSuccess(context, transaction: transaction, serviceLabel: 'Data purchase');
           },
           error: (error, _) {
-            final failure = error is Failure ? error : null;
-            Navigator.of(context).pop();
             ref.read(dataPurchaseControllerProvider.notifier).reset();
-            context.showSnack(failure?.message ?? 'Purchase failed. Please try again.', isError: true);
+            handleBillPaymentError(context, error);
           },
         );
       },

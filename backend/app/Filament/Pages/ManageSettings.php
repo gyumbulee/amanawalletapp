@@ -19,6 +19,8 @@ class ManageSettings extends Page implements HasForms
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
+    protected static string|\UnitEnum|null $navigationGroup = 'Configuration';
+
     protected string $view = 'filament.pages.manage-settings';
 
     public ?array $data = [];
@@ -40,12 +42,16 @@ class ManageSettings extends Page implements HasForms
         return $schema
             ->components([
                 Section::make('Platform')
+                    ->icon('heroicon-o-adjustments-horizontal')
+                    ->description('Maintenance mode and the referral bonus every new user\'s referrer earns.')
                     ->components([
                         Toggle::make('maintenance_mode')
                             ->helperText('When enabled, the mobile/web app should show a maintenance screen. (Enforcement happens client-side / via a middleware check on this setting.)'),
                         TextInput::make('referral_bonus_amount')->numeric()->required()->prefix('₦'),
                     ]),
                 Section::make('Company Information')
+                    ->icon('heroicon-o-building-office')
+                    ->description('Shown across customer-facing communications and receipts.')
                     ->columns(2)
                     ->components([
                         TextInput::make('company_name')->required(),
@@ -53,6 +59,7 @@ class ManageSettings extends Page implements HasForms
                         TextInput::make('company_phone'),
                     ]),
                 Section::make('Email Settings')
+                    ->icon('heroicon-o-envelope')
                     ->components([
                         TextInput::make('support_email')->email()
                             ->helperText('Shown to users as the support contact address.'),

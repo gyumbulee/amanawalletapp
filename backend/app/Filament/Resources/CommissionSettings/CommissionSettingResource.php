@@ -52,10 +52,28 @@ class CommissionSettingResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('service_type')->badge(),
-                TextColumn::make('network')->placeholder('All networks'),
-                TextColumn::make('type'),
-                TextColumn::make('value'),
+                TextColumn::make('service_type')
+                    ->badge()
+                    ->icon(fn (string $state): string => match ($state) {
+                        'airtime' => 'heroicon-o-device-phone-mobile',
+                        'data' => 'heroicon-o-wifi',
+                        'electricity' => 'heroicon-o-bolt',
+                        'cable' => 'heroicon-o-tv',
+                        'education' => 'heroicon-o-academic-cap',
+                        default => 'heroicon-o-tag',
+                    }),
+                TextColumn::make('network')
+                    ->placeholder('All networks')
+                    ->icon('heroicon-o-signal'),
+                TextColumn::make('type')
+                    ->badge()
+                    ->color('gray'),
+                TextColumn::make('value')
+                    ->label('Commission')
+                    ->weight('semibold')
+                    ->formatStateUsing(fn ($state, $record) => $record->type === 'percentage'
+                        ? number_format($state, 2).'%'
+                        : '₦'.number_format($state, 2)),
                 ToggleColumn::make('is_active')->label('Active'),
             ]);
     }

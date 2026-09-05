@@ -74,15 +74,27 @@ class AdminResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name'),
-                TextColumn::make('email')->searchable(),
-                TextColumn::make('roles.name')->badge(),
+                TextColumn::make('name')
+                    ->icon('heroicon-o-user-circle')
+                    ->weight('semibold'),
+                TextColumn::make('email')
+                    ->icon('heroicon-o-envelope')
+                    ->searchable(),
+                TextColumn::make('roles.name')
+                    ->badge()
+                    ->color(fn ($state) => str($state)->lower()->contains('super') ? 'warning' : 'primary')
+                    ->formatStateUsing(fn ($state) => str($state)->headline()),
                 TextColumn::make('permissions_count')
                     ->label('Permissions')
+                    ->icon('heroicon-o-key')
                     ->counts('permissions')
-                    ->badge(),
+                    ->badge()
+                    ->color('gray'),
                 ToggleColumn::make('is_active')->label('Active'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('created_at')
+                    ->since()
+                    ->tooltip(fn ($record) => $record->created_at?->format('M j, Y \a\t g:i A'))
+                    ->sortable(),
             ]);
     }
 

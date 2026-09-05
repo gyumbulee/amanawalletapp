@@ -3,6 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\User;
+use App\Notifications\Channels\FcmChannel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
@@ -16,7 +17,7 @@ class ReferralBonusEarnedNotification extends Notification implements ShouldQueu
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', FcmChannel::class];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -34,6 +35,18 @@ class ReferralBonusEarnedNotification extends Notification implements ShouldQueu
             'title' => 'Referral Bonus Earned',
             'message' => "You earned ₦{$this->amount} from referring {$this->referredUser->first_name} {$this->referredUser->last_name}.",
             'amount' => $this->amount,
+        ];
+    }
+
+    public function toFcm(object $notifiable): array
+    {
+        return [
+            'title' => 'Referral Bonus Earned 🎉',
+            'body' => "You earned ₦{$this->amount} because {$this->referredUser->first_name} completed a qualifying transaction.",
+            'data' => [
+                'type' => 'referral_bonus',
+                'amount' => (string) $this->amount,
+            ],
         ];
     }
 }

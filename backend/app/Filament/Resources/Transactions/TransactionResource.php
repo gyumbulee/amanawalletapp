@@ -35,13 +35,40 @@ class TransactionResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('reference')->searchable()->copyable(),
-                TextColumn::make('user.email')->label('User')->searchable(),
-                TextColumn::make('type')->badge(),
-                TextColumn::make('amount')->money('NGN')->sortable(),
+                TextColumn::make('reference')
+                    ->icon('heroicon-o-hashtag')
+                    ->searchable()
+                    ->copyable(),
+                TextColumn::make('user.email')
+                    ->label('User')
+                    ->icon('heroicon-o-user')
+                    ->searchable(),
+                TextColumn::make('type')
+                    ->badge()
+                    ->icon(fn (string $state): string => match ($state) {
+                        'wallet_funding' => 'heroicon-o-arrow-down-tray',
+                        'airtime' => 'heroicon-o-device-phone-mobile',
+                        'data' => 'heroicon-o-wifi',
+                        'electricity' => 'heroicon-o-bolt',
+                        'cable' => 'heroicon-o-tv',
+                        'education' => 'heroicon-o-academic-cap',
+                        'referral_bonus' => 'heroicon-o-gift',
+                        default => 'heroicon-o-banknotes',
+                    }),
+                TextColumn::make('amount')
+                    ->money('NGN')
+                    ->weight('semibold')
+                    ->sortable(),
                 TextColumn::make('status')
                     ->badge()
                     ->formatStateUsing(fn (TransactionStatus $state) => ucfirst($state->value))
+                    ->icon(fn (TransactionStatus $state): string => match ($state) {
+                        TransactionStatus::Successful => 'heroicon-o-check-circle',
+                        TransactionStatus::Failed => 'heroicon-o-x-circle',
+                        TransactionStatus::Reversed => 'heroicon-o-arrow-uturn-left',
+                        TransactionStatus::Processing => 'heroicon-o-arrow-path',
+                        TransactionStatus::Pending => 'heroicon-o-clock',
+                    })
                     ->color(fn (TransactionStatus $state) => match ($state) {
                         TransactionStatus::Successful => 'success',
                         TransactionStatus::Failed => 'danger',
@@ -49,8 +76,14 @@ class TransactionResource extends Resource
                         TransactionStatus::Processing => 'warning',
                         TransactionStatus::Pending => 'gray',
                     }),
-                TextColumn::make('provider'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('provider')
+                    ->badge()
+                    ->color('gray')
+                    ->placeholder('-'),
+                TextColumn::make('created_at')
+                    ->since()
+                    ->tooltip(fn ($record) => $record->created_at?->format('M j, Y \a\t g:i A'))
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('type')->options([
@@ -86,24 +119,41 @@ class TransactionResource extends Resource
         return $schema
             ->components([
                 Section::make('Transaction Details')
+                    ->icon('heroicon-o-banknotes')
                     ->schema([
-                        TextEntry::make('reference')->copyable(),
+                        TextEntry::make('reference')
+                            ->icon('heroicon-o-hashtag')
+                            ->copyable(),
 
                         TextEntry::make('user.email')
-                            ->label('User'),
+                            ->label('User')
+                            ->icon('heroicon-o-user'),
 
                         TextEntry::make('type')
                             ->badge(),
 
                         TextEntry::make('amount')
-                            ->money('NGN'),
+                            ->money('NGN')
+                            ->weight('semibold'),
 
                         TextEntry::make('status')
-                            ->badge(),
+                            ->badge()
+                            ->formatStateUsing(fn (TransactionStatus $state) => ucfirst($state->value))
+                            ->color(fn (TransactionStatus $state) => match ($state) {
+                                TransactionStatus::Successful => 'success',
+                                TransactionStatus::Failed => 'danger',
+                                TransactionStatus::Reversed => 'warning',
+                                TransactionStatus::Processing => 'warning',
+                                TransactionStatus::Pending => 'gray',
+                            }),
 
-                        TextEntry::make('provider'),
+                        TextEntry::make('provider')
+                            ->badge()
+                            ->color('gray')
+                            ->placeholder('-'),
 
                         TextEntry::make('created_at')
+                            ->icon('heroicon-o-clock')
                             ->dateTime(),
                     ]),
             ]);

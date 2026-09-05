@@ -57,10 +57,22 @@ class ProviderResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('name'),
-                TextColumn::make('slug')->badge(),
+                TextColumn::make('name')
+                    ->icon('heroicon-o-server-stack')
+                    ->weight('semibold')
+                    ->searchable(),
+                TextColumn::make('slug')
+                    ->badge()
+                    ->color('gray'),
+                TextColumn::make('retry_attempts')
+                    ->label('Retries')
+                    ->icon('heroicon-o-arrow-path')
+                    ->alignCenter(),
                 TextColumn::make('timeout_seconds')
-                    ->label('Timeout (s)'),
+                    ->label('Timeout')
+                    ->icon('heroicon-o-clock')
+                    ->formatStateUsing(fn ($state) => "{$state}s")
+                    ->alignCenter(),
                 ToggleColumn::make('is_active')
                     ->label('Active'),
             ]);

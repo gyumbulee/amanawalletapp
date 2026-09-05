@@ -30,11 +30,34 @@ class AuditLogResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('admin.name')->label('Admin')->placeholder('System'),
-                TextColumn::make('action')->badge(),
-                TextColumn::make('subject_type')->label('Subject')->formatStateUsing(fn ($state) => $state ? class_basename($state) : '-'),
-                TextColumn::make('ip_address'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('admin.name')
+                    ->label('Admin')
+                    ->placeholder('System')
+                    ->icon('heroicon-o-user-circle')
+                    ->searchable(),
+                TextColumn::make('action')
+                    ->badge()
+                    ->color(fn (string $state): string => match (true) {
+                        str_contains($state, 'approve'), str_contains($state, 'activate'), str_contains($state, 'resolve') => 'success',
+                        str_contains($state, 'suspend'), str_contains($state, 'reject'), str_contains($state, 'close') => 'danger',
+                        str_contains($state, 'update'), str_contains($state, 'save'), str_contains($state, 'reset') => 'warning',
+                        default => 'gray',
+                    })
+                    ->searchable(),
+                TextColumn::make('subject_type')
+                    ->label('Subject')
+                    ->icon('heroicon-o-cube')
+                    ->formatStateUsing(fn ($state) => $state ? class_basename($state) : '-'),
+                TextColumn::make('ip_address')
+                    ->icon('heroicon-o-globe-alt')
+                    ->copyable()
+                    ->placeholder('-'),
+                TextColumn::make('created_at')
+                    ->label('When')
+                    ->since()
+                    ->tooltip(fn ($record) => $record->created_at?->format('M j, Y \a\t g:i A'))
+                    ->icon('heroicon-o-clock')
+                    ->sortable(),
             ])
             ->defaultSort('created_at', 'desc');
     }

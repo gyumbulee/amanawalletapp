@@ -50,6 +50,7 @@ class UserResource extends Resource
             ->columns([
                 TextColumn::make('uuid')
                     ->label('ID')
+                    ->icon('heroicon-o-finger-print')
                     ->limit(8)
                     ->copyable(),
 
@@ -60,14 +61,17 @@ class UserResource extends Resource
                     ->searchable(),
 
                 TextColumn::make('email')
+                    ->icon('heroicon-o-envelope')
                     ->searchable(),
 
                 TextColumn::make('phone')
+                    ->icon('heroicon-o-phone')
                     ->searchable(),
 
                 TextColumn::make('wallet.balance')
                     ->label('Balance')
                     ->money('NGN')
+                    ->weight('semibold')
                     ->sortable(),
 
                 TextColumn::make('status')
@@ -80,10 +84,13 @@ class UserResource extends Resource
 
                 TextColumn::make('referral_code')
                     ->label('Referral Code')
+                    ->icon('heroicon-o-gift')
                     ->copyable(),
 
                 TextColumn::make('created_at')
-                    ->dateTime()
+                    ->label('Joined')
+                    ->since()
+                    ->tooltip(fn ($record) => $record->created_at?->format('M j, Y \a\t g:i A'))
                     ->sortable(),
             ])
             ->filters([
@@ -95,6 +102,7 @@ class UserResource extends Resource
             ])
             ->recordActions([
                 Action::make('suspend')
+                    ->icon('heroicon-o-no-symbol')
                     ->action(function (User $record) {
                         $record->update([
                             'status' => 'suspended',
@@ -116,6 +124,7 @@ class UserResource extends Resource
                     ),
 
                 Action::make('activate')
+                    ->icon('heroicon-o-check-circle')
                     ->action(function (User $record) {
                         $record->update([
                             'status' => 'active',
@@ -138,6 +147,7 @@ class UserResource extends Resource
 
                 Action::make('reset_pin')
                     ->label('Reset Transaction PIN')
+                    ->icon('heroicon-o-key')
                     ->action(function (User $record) {
                         if ($record->wallet) {
                             $record->wallet->update([

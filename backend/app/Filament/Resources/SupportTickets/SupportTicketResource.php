@@ -39,20 +39,47 @@ class SupportTicketResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user.email')->label('User')->searchable(),
-                TextColumn::make('subject')->limit(40)->searchable(),
-                TextColumn::make('transaction.reference')->label('Transaction')->placeholder('—'),
+                TextColumn::make('user.email')
+                    ->label('User')
+                    ->icon('heroicon-o-user')
+                    ->searchable(),
+                TextColumn::make('subject')
+                    ->icon('heroicon-o-chat-bubble-left-ellipsis')
+                    ->limit(40)
+                    ->searchable(),
+                TextColumn::make('transaction.reference')
+                    ->label('Transaction')
+                    ->icon('heroicon-o-hashtag')
+                    ->placeholder('—'),
                 TextColumn::make('status')
                     ->badge()
+                    ->icon(fn (SupportTicketStatus $state): string => match ($state) {
+                        SupportTicketStatus::Open => 'heroicon-o-exclamation-circle',
+                        SupportTicketStatus::Pending => 'heroicon-o-clock',
+                        SupportTicketStatus::Resolved => 'heroicon-o-check-circle',
+                        SupportTicketStatus::Closed => 'heroicon-o-archive-box',
+                    })
                     ->color(fn (SupportTicketStatus $state): string => match ($state) {
                         SupportTicketStatus::Open => 'danger',
                         SupportTicketStatus::Pending => 'warning',
                         SupportTicketStatus::Resolved => 'success',
                         SupportTicketStatus::Closed => 'gray',
                     }),
-                TextColumn::make('messages_count')->counts('messages')->label('Messages'),
-                TextColumn::make('last_message_at')->dateTime()->sortable(),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('messages_count')
+                    ->counts('messages')
+                    ->label('Messages')
+                    ->icon('heroicon-o-chat-bubble-left-right')
+                    ->badge()
+                    ->color('gray'),
+                TextColumn::make('last_message_at')
+                    ->since()
+                    ->tooltip(fn ($record) => $record->last_message_at?->format('M j, Y \a\t g:i A'))
+                    ->sortable(),
+                TextColumn::make('created_at')
+                    ->label('Opened')
+                    ->since()
+                    ->tooltip(fn ($record) => $record->created_at?->format('M j, Y \a\t g:i A'))
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')->options([

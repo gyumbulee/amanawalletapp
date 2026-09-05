@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/push/push_notification_service.dart';
 import '../../../../providers/global_providers.dart';
 import 'auth_repository_provider.dart';
 import 'auth_session_provider.dart';
@@ -24,6 +27,7 @@ class OtpVerifyController extends AsyncNotifier<OtpVerifyOutcome?> {
       if (result != null) {
         ref.read(authSessionProvider.notifier).setUser(result.user);
         ref.invalidate(isAuthenticatedProvider);
+        unawaited(ref.read(pushNotificationServiceProvider).registerAfterLogin());
         return const OtpVerifyOutcome(loggedIn: true);
       }
       return const OtpVerifyOutcome(loggedIn: false);

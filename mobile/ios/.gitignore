@@ -32,3 +32,7 @@ Runner/GeneratedPluginRegistrant.*
 !default.mode2v3
 !default.pbxuser
 !default.perspectivev3
+
+# Firebase config for push notifications — project-specific, download fresh
+# per environment from the Firebase console.
+Runner/GoogleService-Info.plist

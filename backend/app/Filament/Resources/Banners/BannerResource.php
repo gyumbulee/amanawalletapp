@@ -70,18 +70,18 @@ class BannerResource extends Resource
                 ->live(),
 
             Select::make('link_value')
-    ->label('Service')
-    ->options(self::SERVICE_LINKS)
-    ->required(fn (Get $get) => $get('link_type') === 'service')
-    ->visible(fn (Get $get) => $get('link_type') === 'service')
-    ->dehydrated(fn (Get $get) => $get('link_type') === 'service'),
+                ->label('Service')
+                ->options(self::SERVICE_LINKS)
+                ->required(fn (Get $get) => $get('link_type') === 'service')
+                ->visible(fn (Get $get) => $get('link_type') === 'service')
+                ->dehydrated(fn (Get $get) => $get('link_type') === 'service'),
 
-TextInput::make('link_value')
-    ->label('URL')
-    ->url()
-    ->required(fn (Get $get) => $get('link_type') === 'url')
-    ->visible(fn (Get $get) => $get('link_type') === 'url')
-    ->dehydrated(fn (Get $get) => $get('link_type') === 'url'),
+            TextInput::make('link_value')
+                ->label('URL')
+                ->url()
+                ->required(fn (Get $get) => $get('link_type') === 'url')
+                ->visible(fn (Get $get) => $get('link_type') === 'url')
+                ->dehydrated(fn (Get $get) => $get('link_type') === 'url'),
 
             TextInput::make('sort_order')
                 ->numeric()
@@ -105,11 +105,25 @@ TextInput::make('link_value')
         return $table
             ->columns([
                 ImageColumn::make('image_path')->disk('public')->label('Preview'),
-                TextColumn::make('title'),
-                TextColumn::make('link_type')->badge(),
-                TextColumn::make('sort_order')->label('Order')->sortable(),
+                TextColumn::make('title')->weight('semibold'),
+                TextColumn::make('link_type')
+                    ->badge()
+                    ->icon(fn (string $state): string => match ($state) {
+                        'service' => 'heroicon-o-arrow-top-right-on-square',
+                        'url' => 'heroicon-o-link',
+                        default => 'heroicon-o-no-symbol',
+                    }),
+                TextColumn::make('sort_order')
+                    ->label('Order')
+                    ->icon('heroicon-o-bars-3')
+                    ->sortable(),
                 ToggleColumn::make('is_active')->label('Active'),
-                TextColumn::make('ends_at')->label('Expires')->dateTime()->placeholder('Never'),
+                TextColumn::make('ends_at')
+                    ->label('Expires')
+                    ->icon('heroicon-o-calendar')
+                    ->dateTime()
+                    ->placeholder('Never')
+                    ->color(fn ($state) => $state && $state->isPast() ? 'danger' : null),
             ])
             ->defaultSort('sort_order');
     }

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -13,18 +15,57 @@ import '../../../../shared/widgets/empty_states/empty_state.dart';
 import '../../../../shared/widgets/loaders/app_spinner.dart';
 import '../../../../shared/widgets/responsive_scaffold.dart';
 import '../../../../theme/app_colors.dart';
+import '../../domain/entities/transaction.dart';
 import '../providers/transaction_detail_provider.dart';
 import '../widgets/status_badge.dart';
 import '../widgets/transaction_service_icon.dart';
 
-class TransactionDetailScreen extends ConsumerWidget {
+class TransactionDetailScreen extends ConsumerStatefulWidget {
   const TransactionDetailScreen({super.key, required this.reference});
 
   final String reference;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final detailAsync = ref.watch(transactionDetailProvider(reference));
+  ConsumerState<TransactionDetailScreen> createState() => _TransactionDetailScreenState();
+}
+
+class _TransactionDetailScreenState extends ConsumerState<TransactionDetailScreen> {
+  static const _pollInterval = Duration(seconds: 4);
+
+  Timer? _pollTimer;
+
+  bool _isSettled(TransactionStatus status) => switch (status) {
+        TransactionStatus.successful || TransactionStatus.failed || TransactionStatus.reversed => true,
+        TransactionStatus.pending || TransactionStatus.processing => false,
+      };
+
+  /// Keeps re-fetching every few seconds while the transaction is still
+  /// Pending/Processing, so a user who just entered their PIN sees the
+  /// status resolve on its own instead of wondering whether anything is
+  /// still happening. Stops itself the moment the status settles.
+  void _syncPolling(TransactionStatus status) {
+    if (_isSettled(status)) {
+      _pollTimer?.cancel();
+      _pollTimer = null;
+      return;
+    }
+
+    _pollTimer ??= Timer.periodic(_pollInterval, (_) {
+      if (!mounted) return;
+      ref.invalidate(transactionDetailProvider(widget.reference));
+    });
+  }
+
+  @override
+  void dispose() {
+    _pollTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final detailAsync = ref.watch(transactionDetailProvider(widget.reference));
+    detailAsync.whenData((transaction) => _syncPolling(transaction.status));
 
     return ResponsiveScaffold(
       appBar: AppBar(title: const Text('Transaction Details')),
@@ -34,7 +75,7 @@ class TransactionDetailScreen extends ConsumerWidget {
           icon: Icons.error_outline_rounded,
           message: 'Could not load this transaction.',
           actionLabel: 'Retry',
-          onAction: () => ref.invalidate(transactionDetailProvider(reference)),
+          onAction: () => ref.invalidate(transactionDetailProvider(widget.reference)),
         ),
         data: (transaction) {
           final isCredit = transaction.isCredit;
@@ -44,6 +85,7 @@ class TransactionDetailScreen extends ConsumerWidget {
           // matches the active theme's text color instead of depending on
           // ambient inheritance, which wasn't resolving reliably here.
           final valueColor = Theme.of(context).textTheme.bodyMedium?.color;
+          final isSettled = _isSettled(transaction.status);
 
           return SingleChildScrollView(
             child: Column(
@@ -69,6 +111,35 @@ class TransactionDetailScreen extends ConsumerWidget {
                     ],
                   ),
                 ),
+                if (!isSettled) ...[
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.warning.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Row(
+                        children: [
+                          SizedBox(
+                            height: 16,
+                            width: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.warning),
+                          ),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              "We're still processing this with the provider. This page will update automatically — no need to retry or leave.",
+                              style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: 28),
                 AppCard(
                   child: Column(

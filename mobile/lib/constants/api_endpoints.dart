@@ -68,6 +68,7 @@ class ApiEndpoints {
   static const notificationsUnreadCount = '/notifications/unread-count';
   static const notificationsMarkAllRead = '/notifications/read-all';
   static String markNotificationRead(String id) => '/notifications/$id/read';
+  static const deviceToken = '/notifications/device-token';
 
   // Support
   static const supportTickets = '/support/tickets';

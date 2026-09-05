@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Enums\TransactionStatus;
 use App\Enums\TransactionType;
 use App\Events\TransactionFailed;
+use App\Events\TransactionReversed;
 use App\Events\TransactionSuccessful;
 use App\Models\Transaction;
 use App\Models\User;
@@ -78,9 +79,13 @@ class TransactionService
 
     public function markReversed(Transaction $transaction): Transaction
     {
-        return $this->transactionRepository->update($transaction, [
+        $transaction = $this->transactionRepository->update($transaction, [
             'status' => TransactionStatus::Reversed,
         ]);
+
+        TransactionReversed::dispatch($transaction);
+
+        return $transaction;
     }
 
     protected function generateReference(): string

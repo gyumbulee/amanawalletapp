@@ -4,7 +4,7 @@
             {{ $this->form }}
 
             <div class="mt-4">
-                <x-filament::button type="submit">
+                <x-filament::button type="submit" icon="heroicon-o-chart-bar">
                     Generate Report
                 </x-filament::button>
             </div>
@@ -12,14 +12,30 @@
     </x-filament::section>
 
     @if ($summary)
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1rem; margin-top:1.5rem;">
+        <div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             @foreach ($summary as $label => $value)
+                @php
+                    $icon = match (true) {
+                        str_contains($label, 'amount') => 'heroicon-o-banknotes',
+                        str_contains($label, 'transactions') => 'heroicon-o-arrows-right-left',
+                        str_contains($label, 'from') || str_contains($label, 'to') => 'heroicon-o-calendar',
+                        default => 'heroicon-o-chart-bar',
+                    };
+                @endphp
                 <x-filament::section>
-                    <div style="font-size:0.7rem; text-transform:uppercase; letter-spacing:0.05em; color:#6B7280;">
-                        {{ str_replace('_', ' ', $label) }}
-                    </div>
-                    <div style="font-size:1.25rem; font-weight:600; margin-top:0.25rem;">
-                        {{ $value }}
+                    <div class="flex items-start gap-3">
+                        <x-filament::icon
+                            :icon="$icon"
+                            class="mt-0.5 h-5 w-5 shrink-0 text-gray-400 dark:text-gray-500"
+                        />
+                        <div class="min-w-0">
+                            <div class="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
+                                {{ str_replace('_', ' ', $label) }}
+                            </div>
+                            <div class="mt-1 truncate text-xl font-semibold text-gray-950 dark:text-white">
+                                {{ $value }}
+                            </div>
+                        </div>
                     </div>
                 </x-filament::section>
             @endforeach
@@ -28,30 +44,39 @@
 
     <x-filament::section class="mt-6">
         @if (empty($rows))
-            <div style="text-align:center; padding:2rem; color:#6B7280;">
-                No data available for this range.
+            <div class="flex flex-col items-center gap-2 py-12 text-center text-gray-500 dark:text-gray-400">
+                <x-filament::icon icon="heroicon-o-document-chart-bar" class="h-10 w-10 text-gray-300 dark:text-gray-600" />
+                <p>No data available for this range.</p>
             </div>
         @else
-            <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.875rem;">
-                <thead>
-                    <tr style="background-color:#374151;">
-                        @foreach ($columns as $column)
-                            <th style="padding:0.5rem 0.75rem; color:#FFFFFF; text-transform:uppercase; font-size:0.7rem; letter-spacing:0.05em;">
-                                {{ str_replace('_', ' ', $column) }}
-                            </th>
-                        @endforeach
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($rows as $i => $row)
-                        <tr style="background-color: {{ $i % 2 === 0 ? '#F9FAFB' : '#FFFFFF' }}; border-bottom:1px solid #E5E7EB;">
-                            @foreach ($row as $value)
-                                <td style="padding:0.5rem 0.75rem;">{{ $value }}</td>
+            <div class="overflow-x-auto">
+                <table class="w-full border-collapse text-left text-sm">
+                    <thead>
+                        <tr class="bg-gray-700 dark:bg-gray-800">
+                            @foreach ($columns as $column)
+                                <th class="px-3 py-2 text-xs font-medium uppercase tracking-wide text-white first:rounded-l-lg last:rounded-r-lg">
+                                    {{ str_replace('_', ' ', $column) }}
+                                </th>
                             @endforeach
                         </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach ($rows as $i => $row)
+                            <tr
+                                @class([
+                                    'border-b border-gray-200 dark:border-white/10',
+                                    'bg-gray-50 dark:bg-white/5' => $i % 2 === 0,
+                                    'bg-white dark:bg-gray-900' => $i % 2 !== 0,
+                                ])
+                            >
+                                @foreach ($row as $value)
+                                    <td class="px-3 py-2 text-gray-700 dark:text-gray-200">{{ $value }}</td>
+                                @endforeach
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
         @endif
     </x-filament::section>
 </x-filament-panels::page>

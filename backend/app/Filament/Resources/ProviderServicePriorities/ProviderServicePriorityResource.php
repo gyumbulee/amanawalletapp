@@ -73,9 +73,23 @@ class ProviderServicePriorityResource extends Resource
             ->columns([
                 TextColumn::make('service')
                     ->badge()
+                    ->icon(fn (string $state): string => match ($state) {
+                        'airtime' => 'heroicon-o-device-phone-mobile',
+                        'data' => 'heroicon-o-wifi',
+                        'electricity' => 'heroicon-o-bolt',
+                        'cable' => 'heroicon-o-tv',
+                        'education' => 'heroicon-o-academic-cap',
+                        default => 'heroicon-o-cog',
+                    })
                     ->formatStateUsing(fn (string $state) => self::SERVICES[$state] ?? $state),
-                TextColumn::make('provider.name'),
-                TextColumn::make('priority')->label('Order')->sortable(),
+                TextColumn::make('provider.name')
+                    ->icon('heroicon-o-server-stack'),
+                TextColumn::make('priority')
+                    ->label('Order')
+                    ->badge()
+                    ->color('gray')
+                    ->formatStateUsing(fn ($state) => "#{$state}")
+                    ->sortable(),
                 ToggleColumn::make('is_active')->label('Active'),
             ])
             ->defaultSort('service')

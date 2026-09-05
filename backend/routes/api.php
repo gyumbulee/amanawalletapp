@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\BannerController;
 use App\Http\Controllers\Api\V1\BannerImageController;
 use App\Http\Controllers\Api\V1\CableController;
 use App\Http\Controllers\Api\V1\DataController;
+use App\Http\Controllers\Api\V1\DeviceTokenController;
 use App\Http\Controllers\Api\V1\EducationController;
 use App\Http\Controllers\Api\V1\ElectricityController;
 use App\Http\Controllers\Api\V1\NotificationController;
@@ -116,6 +117,8 @@ Route::prefix('v1')->middleware('maintenance')->group(function () {
         Route::get('unread-count', [NotificationController::class, 'unreadCount']);
         Route::post('{id}/read', [NotificationController::class, 'markAsRead']);
         Route::post('read-all', [NotificationController::class, 'markAllAsRead']);
+        Route::post('device-token', [DeviceTokenController::class, 'store']);
+        Route::delete('device-token', [DeviceTokenController::class, 'destroy']);
     });
 
     Route::middleware('auth:sanctum')->prefix('support')->group(function () {

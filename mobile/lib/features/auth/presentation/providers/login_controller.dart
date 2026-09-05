@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../core/push/push_notification_service.dart';
 import '../../../../providers/global_providers.dart';
 import '../../domain/repositories/auth_repository.dart';
 import 'auth_repository_provider.dart';
@@ -16,6 +19,8 @@ class LoginController extends AsyncNotifier<AuthResult?> {
       if (!result.requiresOtpVerification) {
         ref.read(authSessionProvider.notifier).setUser(result.user);
         ref.invalidate(isAuthenticatedProvider);
+        // Best-effort — a failure here shouldn't block a successful login.
+        unawaited(ref.read(pushNotificationServiceProvider).registerAfterLogin());
       }
       return result;
     });

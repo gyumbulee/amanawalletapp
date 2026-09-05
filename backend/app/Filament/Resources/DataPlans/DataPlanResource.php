@@ -65,6 +65,7 @@ class DataPlanResource extends Resource
             ->columns([
                 TextColumn::make('network')
                     ->badge()
+                    ->icon('heroicon-o-signal')
                     ->formatStateUsing(fn (string $state) => strtoupper($state)),
                 TextColumn::make('category')
                     ->badge()

@@ -69,6 +69,21 @@ android {
     }
 }
 
+// Push notifications (FCM) need google-services.json, downloaded from the
+// Firebase console (Project Settings -> your Android app -> download
+// google-services.json) and placed at android/app/google-services.json -
+// gitignored, never committed, same reasoning as key.properties. Applied
+// imperatively (not in the plugins{} block above) so its absence doesn't
+// hard-fail a fresh clone that hasn't set up Firebase yet.
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+} else {
+    logger.warn(
+        "WARNING: android/app/google-services.json not found - push notifications " +
+        "will not work on Android until it's added. See PUSH_NOTIFICATIONS_SETUP.md."
+    )
+}
+
 kotlin {
     compilerOptions {
         jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17

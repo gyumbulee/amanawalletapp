@@ -3,7 +3,7 @@
         {{ $this->form }}
 
         <div class="mt-6">
-            <x-filament::button type="submit">
+            <x-filament::button type="submit" icon="heroicon-o-check">
                 Save Settings
             </x-filament::button>
         </div>

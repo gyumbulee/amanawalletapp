@@ -35,18 +35,36 @@ class KycResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('user.email')->label('User')->searchable(),
-                TextColumn::make('type')->badge(),
+                TextColumn::make('user.email')
+                    ->label('User')
+                    ->icon('heroicon-o-user')
+                    ->searchable(),
+                TextColumn::make('type')
+                    ->badge()
+                    ->icon(fn (string $state): string => match ($state) {
+                        'bvn', 'nin' => 'heroicon-o-identification',
+                        'id_card' => 'heroicon-o-credit-card',
+                        'proof_of_address' => 'heroicon-o-home',
+                        default => 'heroicon-o-document',
+                    }),
                 TextColumn::make('status')
-    ->badge()
-    ->color(fn (KycStatus $state): string => match ($state) {
-        KycStatus::Verified => 'success',
-        KycStatus::Rejected => 'danger',
-        KycStatus::Pending => 'warning',
-    }),
+                    ->badge()
+                    ->color(fn (KycStatus $state): string => match ($state) {
+                        KycStatus::Verified => 'success',
+                        KycStatus::Rejected => 'danger',
+                        KycStatus::Pending => 'warning',
+                    }),
                 TextColumn::make('rejection_reason')->limit(40)->placeholder('-'),
-                TextColumn::make('verified_at')->dateTime()->placeholder('-'),
-                TextColumn::make('created_at')->dateTime()->sortable(),
+                TextColumn::make('verified_at')
+                    ->icon('heroicon-o-shield-check')
+                    ->since()
+                    ->tooltip(fn ($record) => $record->verified_at?->format('M j, Y \a\t g:i A'))
+                    ->placeholder('-'),
+                TextColumn::make('created_at')
+                    ->label('Submitted')
+                    ->since()
+                    ->tooltip(fn ($record) => $record->created_at?->format('M j, Y \a\t g:i A'))
+                    ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('type')->options([
@@ -58,6 +76,7 @@ class KycResource extends Resource
             ])
             ->recordActions([
                 Action::make('approve')
+                    ->icon('heroicon-o-check-circle')
                     ->action(function (Kyc $record) {
                         $record->update(['status' => 'verified', 'verified_at' => now(), 'rejection_reason' => null]);
                         AuditLog::record('kyc.approve', $record);
@@ -66,6 +85,7 @@ class KycResource extends Resource
                     ->color('success')
                     ->visible(fn (Kyc $record) => $record->status->value === 'pending'),
                 Action::make('reject')
+                    ->icon('heroicon-o-x-circle')
                     ->schema([Textarea::make('rejection_reason')->required()])
                     ->action(function (Kyc $record, array $data) {
                         $record->update(['status' => 'rejected', 'rejection_reason' => $data['rejection_reason']]);
