@@ -13,9 +13,24 @@ abstract class Failure extends Equatable {
   List<Object?> get props => [message];
 }
 
-/// Network unreachable, timeout, no internet, etc.
+/// Connection never established (DNS failure, server unreachable, no
+/// internet, bad TLS cert). Safe to assume nothing happened server-side.
 class NetworkFailure extends Failure {
   const NetworkFailure([super.message = 'No internet connection. Please try again.']);
+}
+
+/// The request reached the server and may well have been fully processed —
+/// we simply didn't receive a response before giving up waiting. This is
+/// NOT the same situation as [NetworkFailure]: for a purchase/wallet-debit
+/// call, treating this as "the transaction failed" is actively dangerous —
+/// the transaction may have gone through server-side, and telling the user
+/// otherwise risks a confused duplicate attempt or lost trust. Anywhere
+/// this is caught for a money-moving action, check transaction history
+/// instead of assuming failure.
+class TimeoutFailure extends Failure {
+  const TimeoutFailure([
+    super.message = "We didn't hear back in time. This may still have gone through — check your transaction history before trying again.",
+  ]);
 }
 
 /// 401 — token missing/expired/invalid. Route guard should force re-login.

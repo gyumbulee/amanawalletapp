@@ -8,24 +8,18 @@ import java.util.Properties
 import java.io.FileInputStream
 
 // Release signing credentials live in android/key.properties, which is
-// gitignored and never committed (see android/.gitignore). Generate a
-// keystore with:
-//   keytool -genkey -v -keystore ~/amana-wallet-release.jks \
-//     -keyalg RSA -keysize 2048 -validity 10000 -alias amanawallet
-// then create android/key.properties from key.properties.example with the
-// real path/passwords. Falls back to the debug key (with a warning) when
-// key.properties is absent so `flutter run --release` still works locally
-// during development - but a Play Store upload MUST use the real keystore.
+// gitignored and never committed.
 val keystorePropertiesFile = rootProject.file("key.properties")
 val keystoreProperties = Properties()
 val hasReleaseKeystore = keystorePropertiesFile.exists()
+
 if (hasReleaseKeystore) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 } else {
     logger.warn(
         "WARNING: android/key.properties not found - release build will be " +
         "signed with the DEBUG key. This is fine for local `flutter run --release` " +
-        "but MUST NOT be used for a Play Store upload. See android/key.properties.example."
+        "but MUST NOT be used for a Play Store upload."
     )
 }
 
@@ -34,7 +28,9 @@ android {
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
+    // Required by flutter_local_notifications.
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -69,18 +65,23 @@ android {
     }
 }
 
-// Push notifications (FCM) need google-services.json, downloaded from the
-// Firebase console (Project Settings -> your Android app -> download
-// google-services.json) and placed at android/app/google-services.json -
-// gitignored, never committed, same reasoning as key.properties. Applied
-// imperatively (not in the plugins{} block above) so its absence doesn't
-// hard-fail a fresh clone that hasn't set up Firebase yet.
+// Required for flutter_local_notifications core library desugaring.
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.5")
+}
+
+// Push notifications (FCM) need google-services.json.
+// The file should be placed at:
+// android/app/google-services.json
+//
+// It is intentionally applied only when the file exists so that a fresh
+// development setup does not hard-fail without Firebase configuration.
 if (file("google-services.json").exists()) {
     apply(plugin = "com.google.gms.google-services")
 } else {
     logger.warn(
         "WARNING: android/app/google-services.json not found - push notifications " +
-        "will not work on Android until it's added. See PUSH_NOTIFICATIONS_SETUP.md."
+        "will not work on Android until it's added."
     )
 }
 

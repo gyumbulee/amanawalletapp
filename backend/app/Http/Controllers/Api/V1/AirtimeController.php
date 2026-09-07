@@ -26,7 +26,9 @@ class AirtimeController extends Controller
             );
 
             return response()->json([
-                'message' => 'Airtime purchase successful.',
+                'message' => $transaction->status->value === 'successful'
+                    ? 'Airtime purchase successful.'
+                    : 'Airtime purchase submitted and is being processed.',
                 'transaction' => new TransactionResource($transaction),
             ]);
         } catch (ValidationException $e) {

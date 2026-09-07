@@ -61,7 +61,9 @@ class EducationController extends Controller
             );
 
             return response()->json([
-                'message' => 'Education PIN purchase successful.',
+                'message' => $transaction->status->value === 'successful'
+                    ? 'Education PIN purchase successful.'
+                    : 'Education PIN purchase submitted and is being processed.',
                 'transaction' => new TransactionResource($transaction),
             ]);
         } catch (RuntimeException $e) {

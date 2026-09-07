@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
-use App\Enums\ProviderLogStatus;
 use App\Enums\TransactionType;
+use App\Jobs\ProcessCablePurchase;
 use App\Models\Transaction;
 use App\Models\User;
 use RuntimeException;
-use Throwable;
 
 class CableService
 {
@@ -15,8 +14,6 @@ class CableService
         protected CableProviderResolver $providerResolver,
         protected TransactionService $transactionService,
         protected WalletService $walletService,
-        protected ProviderLogService $providerLogService,
-        protected TransactionConfirmationService $confirmationService,
     ) {}
 
     public function listPlans(string $cableProvider): array
@@ -68,75 +65,8 @@ class CableService
         $this->walletService->debit($wallet, $amount, $transaction->reference, 'Cable TV subscription', $transaction);
         $this->transactionService->markProcessing($transaction);
 
-        $providers = $this->providerResolver->resolve();
-        $lastError = null;
+        ProcessCablePurchase::dispatch($transaction->id, $cableProvider, $smartcardNumber, $variationCode, $amount, $phone);
 
-        foreach ($providers as $slug => $provider) {
-            $startedAt = microtime(true);
-            $requestPayload = ['cable_provider' => $cableProvider, 'smartcard_number' => $smartcardNumber, 'variation_code' => $variationCode, 'amount' => $amount, 'reference' => $transaction->reference];
-
-            try {
-                $result = $provider->subscribe($cableProvider, $smartcardNumber, $variationCode, $amount, $phone, $transaction->reference);
-                $status = $result['status'] ?? 'delivered';
-
-                $this->providerLogService->log(
-                    provider: $slug,
-                    serviceType: 'cable',
-                    requestReference: $transaction->reference,
-                    transactionReference: $transaction->reference,
-                    requestPayload: $requestPayload,
-                    responsePayload: $result,
-                    status: ProviderLogStatus::Success,
-                    errorMessage: null,
-                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-                );
-
-                $meta = $transaction->meta ?? [];
-                $meta['customer_name'] = $result['customer_name'] ?? null;
-                $transaction->update(['meta' => $meta]);
-
-                if ($status === 'pending') {
-                    return $transaction;
-                }
-
-                if ($status !== 'delivered') {
-                    throw new RuntimeException("Provider returned unexpected status: {$status}");
-                }
-
-                return $this->confirmationService->confirm(
-                    $transaction->reference,
-                    'delivered',
-                    $result['provider_reference'] ?? null
-                );
-            } catch (Throwable $e) {
-                $lastError = $e;
-
-                $this->providerLogService->log(
-                    provider: $slug,
-                    serviceType: 'cable',
-                    requestReference: $transaction->reference,
-                    transactionReference: $transaction->reference,
-                    requestPayload: $requestPayload,
-                    responsePayload: null,
-                    status: ProviderLogStatus::Failed,
-                    errorMessage: $e->getMessage(),
-                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-                );
-
-                continue;
-            }
-        }
-
-        $this->walletService->credit(
-            $wallet,
-            $amount,
-            $transaction->reference.'-REVERSAL',
-            'Reversal: cable TV subscription failed on all providers',
-            $transaction
-        );
-
-        $this->transactionService->markFailed($transaction, $lastError?->getMessage() ?? 'All cable TV providers failed.');
-
-        throw new RuntimeException('Cable TV subscription failed. Your wallet has been refunded.');
+        return $transaction;
     }
 }

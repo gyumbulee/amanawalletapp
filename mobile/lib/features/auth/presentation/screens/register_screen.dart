@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -160,6 +161,10 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 hintText: '080XXXXXXXX',
                 autofillHints: const [AutofillHints.telephoneNumber],
                 errorText: failure.fieldError('phone'),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[\d+]')),
+                  LengthLimitingTextInputFormatter(14), // covers 080XXXXXXXX and +234XXXXXXXXXX
+                ],
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'Phone number is required';
                   if (!value.isValidNigerianPhone) return 'Enter a valid Nigerian phone number';
@@ -175,9 +180,13 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                 prefixIcon: Icons.badge_outlined,
                 hintText: '11-digit Bank Verification Number',
                 errorText: failure.fieldError('bvn'),
+                inputFormatters: [
+                  FilteringTextInputFormatter.digitsOnly,
+                  LengthLimitingTextInputFormatter(11),
+                ],
                 validator: (value) {
                   if (value == null || value.isEmpty) return 'BVN is required';
-                  if (!RegExp(r'^\d{11}$').hasMatch(value)) return 'BVN must be exactly 11 digits';
+                  if (value.length != 11) return 'BVN must be exactly 11 digits';
                   return null;
                 },
               ),
@@ -211,6 +220,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   onPressed: () => setState(() => _obscureConfirm = !_obscureConfirm),
                 ),
                 validator: (value) {
+                  if (value == null || value.isEmpty) return 'Please confirm your password';
                   if (value != _passwordController.text) return 'Passwords do not match';
                   return null;
                 },

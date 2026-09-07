@@ -7,6 +7,7 @@ use App\Filament\Resources\Transactions\Pages\ListTransactions;
 use App\Filament\Resources\Transactions\Pages\ViewTransaction;
 use App\Models\Transaction;
 use BackedEnum;
+use App\Enums\TransactionType;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Resources\Resource;
 use Filament\Schemas\Components\Section;
@@ -45,16 +46,16 @@ class TransactionResource extends Resource
                     ->searchable(),
                 TextColumn::make('type')
                     ->badge()
-                    ->icon(fn (string $state): string => match ($state) {
-                        'wallet_funding' => 'heroicon-o-arrow-down-tray',
-                        'airtime' => 'heroicon-o-device-phone-mobile',
-                        'data' => 'heroicon-o-wifi',
-                        'electricity' => 'heroicon-o-bolt',
-                        'cable' => 'heroicon-o-tv',
-                        'education' => 'heroicon-o-academic-cap',
-                        'referral_bonus' => 'heroicon-o-gift',
-                        default => 'heroicon-o-banknotes',
-                    }),
+                    ->icon(fn (TransactionType $state): string => match ($state->value) {
+    'wallet_funding' => 'heroicon-o-arrow-down-tray',
+    'airtime' => 'heroicon-o-device-phone-mobile',
+    'data' => 'heroicon-o-wifi',
+    'electricity' => 'heroicon-o-bolt',
+    'cable' => 'heroicon-o-tv',
+    'education' => 'heroicon-o-academic-cap',
+    'referral_bonus' => 'heroicon-o-gift',
+    default => 'heroicon-o-banknotes',
+}),
                 TextColumn::make('amount')
                     ->money('NGN')
                     ->weight('semibold')

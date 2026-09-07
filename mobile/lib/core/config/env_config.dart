@@ -38,7 +38,7 @@ class EnvConfig {
       case Env.dev:
         return const String.fromEnvironment(
           'API_BASE_URL',
-          defaultValue: 'http://192.168.22.156:8000/api/v1',
+          defaultValue: 'http://192.168.208.156:8000/api/v1',
         );
       case Env.staging:
         return const String.fromEnvironment(
@@ -57,5 +57,11 @@ class EnvConfig {
   static bool get isProd => _resolved == Env.prod;
 
   static const Duration connectTimeout = Duration(seconds: 60);
-  static const Duration receiveTimeout = Duration(seconds: 30);
+  // Purchase endpoints wait on a synchronous provider round-trip
+  // (VTpass/BigiSub) before responding — 30s was cutting it close and
+  // occasionally timed out client-side on a request the backend went on
+  // to complete successfully, which showed up in the app as "failed" for
+  // a purchase that had actually gone through. This doesn't eliminate the
+  // possibility entirely (see TimeoutFailure), just makes it much rarer.
+  static const Duration receiveTimeout = Duration(seconds: 45);
 }

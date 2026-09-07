@@ -2,21 +2,16 @@
 
 namespace App\Services;
 
-use App\Enums\ProviderLogStatus;
 use App\Enums\TransactionType;
+use App\Jobs\ProcessAirtimePurchase;
 use App\Models\Transaction;
 use App\Models\User;
-use RuntimeException;
-use Throwable;
 
 class AirtimeService
 {
     public function __construct(
-        protected AirtimeProviderResolver $providerResolver,
         protected TransactionService $transactionService,
         protected WalletService $walletService,
-        protected ProviderLogService $providerLogService,
-        protected TransactionConfirmationService $confirmationService,
     ) {}
 
     public function purchase(User $user, string $network, string $phone, float $amount, string $pin): Transaction
@@ -40,74 +35,13 @@ class AirtimeService
 
         $this->transactionService->markProcessing($transaction);
 
-        $providers = $this->providerResolver->resolve();
-        $lastError = null;
+        // The actual provider call happens off-request from here on - see
+        // ProcessAirtimePurchase. This method now always returns with the
+        // transaction still in "processing" status; the client is expected
+        // to reflect that (not assume success) and poll/await the eventual
+        // update via GET /transactions/{uuid} or a push notification.
+        ProcessAirtimePurchase::dispatch($transaction->id, $network, $phone, $amount);
 
-        foreach ($providers as $slug => $provider) {
-            $startedAt = microtime(true);
-            $requestPayload = ['network' => $network, 'phone' => $phone, 'amount' => $amount, 'reference' => $transaction->reference];
-
-            try {
-                $result = $provider->purchase($network, $phone, $amount, $transaction->reference);
-                $status = $result['status'] ?? 'delivered';
-
-                $this->providerLogService->log(
-                    provider: $slug,
-                    serviceType: 'airtime',
-                    requestReference: $transaction->reference,
-                    transactionReference: $transaction->reference,
-                    requestPayload: $requestPayload,
-                    responsePayload: $result,
-                    status: ProviderLogStatus::Success,
-                    errorMessage: null,
-                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-                );
-
-                if ($status === 'pending') {
-                    // Accepted by the provider, final outcome arrives via webhook.
-                    // Leave the transaction as "processing" - do not try a fallback provider.
-                    return $transaction;
-                }
-
-                if ($status !== 'delivered') {
-                    throw new RuntimeException("Provider returned unexpected status: {$status}");
-                }
-
-                return $this->confirmationService->confirm(
-                    $transaction->reference,
-                    'delivered',
-                    $result['provider_reference'] ?? null
-                );
-            } catch (Throwable $e) {
-                $lastError = $e;
-
-                $this->providerLogService->log(
-                    provider: $slug,
-                    serviceType: 'airtime',
-                    requestReference: $transaction->reference,
-                    transactionReference: $transaction->reference,
-                    requestPayload: $requestPayload,
-                    responsePayload: null,
-                    status: ProviderLogStatus::Failed,
-                    errorMessage: $e->getMessage(),
-                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-                );
-
-                continue;
-            }
-        }
-
-        // All providers failed - reverse the reserved funds and fail the transaction.
-        $this->walletService->credit(
-            $wallet,
-            $amount,
-            $transaction->reference.'-REVERSAL',
-            'Reversal: airtime purchase failed on all providers',
-            $transaction
-        );
-
-        $this->transactionService->markFailed($transaction, $lastError?->getMessage() ?? 'All airtime providers failed.');
-
-        throw new RuntimeException('Airtime purchase failed. Your wallet has been refunded.');
+        return $transaction;
     }
 }

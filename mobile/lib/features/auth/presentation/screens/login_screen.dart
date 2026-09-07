@@ -23,13 +23,13 @@ class LoginScreen extends ConsumerStatefulWidget {
 
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController();
+  final _loginController = TextEditingController();
   final _passwordController = TextEditingController();
   bool _obscurePassword = true;
 
   @override
   void dispose() {
-    _emailController.dispose();
+    _loginController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
@@ -37,7 +37,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     await ref.read(loginControllerProvider.notifier).login(
-          login: _emailController.text.trim(),
+          login: _loginController.text.trim(),
           password: _passwordController.text,
         );
 
@@ -48,7 +48,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
         if (result == null) return;
         if (result.requiresOtpVerification) {
           context.showSnack('Please verify your email to continue. A new code has been sent.');
-          context.push(AppRoutes.verifyOtp, extra: _emailController.text.trim());
+          context.push(AppRoutes.verifyOtp, extra: result.user.email);
         } else {
           context.go(AppRoutes.dashboard);
         }
@@ -79,16 +79,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 subtitle: 'Log in to continue to your Amana Wallet',
               ),
               AppTextField(
-                label: 'Email',
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
+                label: 'Email or Phone Number',
+                controller: _loginController,
+                keyboardType: TextInputType.text,
                 textInputAction: TextInputAction.next,
-                prefixIcon: Icons.mail_outline_rounded,
-                autofillHints: const [AutofillHints.email],
+                prefixIcon: Icons.person_outline_rounded,
+                autofillHints: const [AutofillHints.email, AutofillHints.telephoneNumber],
                 errorText: failure.fieldError('login'),
                 validator: (value) {
-                  if (value == null || value.isEmpty) return 'Email is required';
-                  if (!value.isValidEmail) return 'Enter a valid email address';
+                  if (value == null || value.trim().isEmpty) return 'Email or phone number is required';
+                  final trimmed = value.trim();
+                  final looksLikeEmail = trimmed.contains('@');
+                  if (looksLikeEmail && !trimmed.isValidEmail) return 'Enter a valid email address';
+                  if (!looksLikeEmail && !trimmed.isValidNigerianPhone) {
+                    return 'Enter a valid email or Nigerian phone number';
+                  }
                   return null;
                 },
               ),

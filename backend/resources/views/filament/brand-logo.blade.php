@@ -1,5 +1,5 @@
-<div class="flex items-center gap-2">
-    <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" class="h-full w-auto" aria-hidden="true">
+<div class="flex h-full items-center gap-2">
+    <svg viewBox="0 0 28 28" xmlns="http://www.w3.org/2000/svg" class="h-full w-auto shrink-0" aria-hidden="true">
         {{-- Wallet body --}}
         <rect x="2" y="6" width="21" height="17" rx="4" fill="#374151" />
         {{-- Fold / flap accent --}}

@@ -60,7 +60,9 @@ class DataController extends Controller
             );
 
             return response()->json([
-                'message' => 'Data purchase successful.',
+                'message' => $transaction->status->value === 'successful'
+                    ? 'Data purchase successful.'
+                    : 'Data purchase submitted and is being processed.',
                 'transaction' => new TransactionResource($transaction),
             ]);
         } catch (RuntimeException $e) {

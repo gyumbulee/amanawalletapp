@@ -2,22 +2,18 @@
 
 namespace App\Services;
 
-use App\Enums\ProviderLogStatus;
 use App\Enums\TransactionType;
+use App\Jobs\ProcessDataPurchase;
 use App\Models\DataPlan;
 use App\Models\Transaction;
 use App\Models\User;
 use RuntimeException;
-use Throwable;
 
 class DataService
 {
     public function __construct(
-        protected DataProviderResolver $providerResolver,
         protected TransactionService $transactionService,
         protected WalletService $walletService,
-        protected ProviderLogService $providerLogService,
-        protected TransactionConfirmationService $confirmationService,
     ) {
     }
 
@@ -106,74 +102,8 @@ class DataService
         $this->walletService->debit($wallet, $sellingPrice, $transaction->reference, 'Data purchase', $transaction);
         $this->transactionService->markProcessing($transaction);
 
-        $providers = $this->providerResolver->resolve();
-        $lastError = null;
+        ProcessDataPurchase::dispatch($transaction->id, $network, $phone, $variationCode, $costPrice, $sellingPrice);
 
-        foreach ($providers as $slug => $provider) {
-            $startedAt = microtime(true);
-            // Provider is charged its own cost price, never our selling price -
-            // sending the marked-up amount would fail BigiSub's own validation
-            // for this plan_id (or worse, silently eat our margin).
-            $requestPayload = ['network' => $network, 'phone' => $phone, 'variation_code' => $variationCode, 'amount' => $costPrice, 'reference' => $transaction->reference];
-
-            try {
-                $result = $provider->purchase($network, $phone, $variationCode, $costPrice, $transaction->reference);
-                $status = $result['status'] ?? 'delivered';
-
-                $this->providerLogService->log(
-                    provider: $slug,
-                    serviceType: 'data',
-                    requestReference: $transaction->reference,
-                    transactionReference: $transaction->reference,
-                    requestPayload: $requestPayload,
-                    responsePayload: $result,
-                    status: ProviderLogStatus::Success,
-                    errorMessage: null,
-                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-                );
-
-                if ($status === 'pending') {
-                    return $transaction;
-                }
-
-                if ($status !== 'delivered') {
-                    throw new RuntimeException("Provider returned unexpected status: {$status}");
-                }
-
-                return $this->confirmationService->confirm(
-                    $transaction->reference,
-                    'delivered',
-                    $result['provider_reference'] ?? null
-                );
-            } catch (Throwable $e) {
-                $lastError = $e;
-
-                $this->providerLogService->log(
-                    provider: $slug,
-                    serviceType: 'data',
-                    requestReference: $transaction->reference,
-                    transactionReference: $transaction->reference,
-                    requestPayload: $requestPayload,
-                    responsePayload: null,
-                    status: ProviderLogStatus::Failed,
-                    errorMessage: $e->getMessage(),
-                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-                );
-
-                continue;
-            }
-        }
-
-        $this->walletService->credit(
-            $wallet,
-            $sellingPrice,
-            $transaction->reference . '-REVERSAL',
-            'Reversal: data purchase failed on all providers',
-            $transaction
-        );
-
-        $this->transactionService->markFailed($transaction, $lastError?->getMessage() ?? 'All data providers failed.');
-
-        throw new RuntimeException('Data purchase failed. Your wallet has been refunded.');
+        return $transaction;
     }
 }

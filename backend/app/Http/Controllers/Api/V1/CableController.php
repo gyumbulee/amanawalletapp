@@ -56,7 +56,9 @@ class CableController extends Controller
             );
 
             return response()->json([
-                'message' => 'Cable TV subscription successful.',
+                'message' => $transaction->status->value === 'successful'
+                    ? 'Cable TV subscription successful.'
+                    : 'Cable TV subscription submitted and is being processed.',
                 'transaction' => new TransactionResource($transaction),
             ]);
         } catch (RuntimeException $e) {

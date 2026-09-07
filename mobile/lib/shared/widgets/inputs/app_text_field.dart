@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 /// Standard text input. Styling comes from InputDecorationTheme (see
 /// theme/app_theme.dart) — this widget just wires up common options so
@@ -21,6 +22,7 @@ class AppTextField extends StatelessWidget {
     this.autofillHints,
     this.maxLines = 1,
     this.minLines,
+    this.inputFormatters,
   });
 
   final String label;
@@ -36,6 +38,11 @@ class AppTextField extends StatelessWidget {
   final ValueChanged<String>? onChanged;
   final String? Function(String?)? validator;
   final Iterable<String>? autofillHints;
+
+  /// Restricts which characters can be typed/pasted at all (e.g.
+  /// digits-only, a max length) — enforced as the user types, not just
+  /// flagged after the fact by [validator] on submit.
+  final List<TextInputFormatter>? inputFormatters;
 
   /// Defaults to a single line, same as before this field existed, so
   /// every existing call site is unaffected. Pass a higher value (and
@@ -54,6 +61,7 @@ class AppTextField extends StatelessWidget {
       onChanged: onChanged,
       validator: validator,
       autofillHints: autofillHints,
+      inputFormatters: inputFormatters,
       maxLines: obscureText ? 1 : maxLines,
       minLines: obscureText ? null : minLines,
       decoration: InputDecoration(

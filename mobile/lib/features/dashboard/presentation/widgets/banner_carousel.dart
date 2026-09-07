@@ -23,7 +23,7 @@ class BannerCarousel extends StatefulWidget {
 }
 
 class _BannerCarouselState extends State<BannerCarousel> {
-  late final PageController _controller = PageController(viewportFraction: 0.92);
+  late final PageController _controller = PageController();
   Timer? _timer;
   int _page = 0;
 
@@ -57,25 +57,30 @@ class _BannerCarouselState extends State<BannerCarousel> {
     if (widget.banners.isEmpty) return const SizedBox.shrink();
 
     return Column(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        SizedBox(
-          height: 140,
-          child: PageView.builder(
-            controller: _controller,
-            itemCount: widget.banners.length,
-            onPageChanged: (index) => setState(() => _page = index),
-            itemBuilder: (context, index) {
-              final banner = widget.banners[index];
-              return Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: InkWell(
+        ConstrainedBox(
+          constraints: BoxConstraints(maxHeight: MediaQuery.sizeOf(context).height * 0.55),
+          child: AspectRatio(
+            // A reasonable default shape for a single banner while its
+            // image loads; BoxFit.contain below means an image with a
+            // different natural ratio still displays in full, just
+            // letterboxed within this box rather than cropped.
+            aspectRatio: 16 / 9,
+            child: PageView.builder(
+              controller: _controller,
+              itemCount: widget.banners.length,
+              onPageChanged: (index) => setState(() => _page = index),
+              itemBuilder: (context, index) {
+                final banner = widget.banners[index];
+                return InkWell(
                   onTap: banner.linkType == 'none' ? null : () => widget.onTap(banner),
                   borderRadius: AppRadii.cardRadius,
                   child: ClipRRect(
                     borderRadius: AppRadii.cardRadius,
                     child: CachedNetworkImage(
                       imageUrl: banner.imageUrl,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                       width: double.infinity,
                       placeholder: (context, url) => Container(color: AppColors.border),
                       errorWidget: (context, url, error) => Container(
@@ -85,9 +90,9 @@ class _BannerCarouselState extends State<BannerCarousel> {
                       ),
                     ),
                   ),
-                ),
-              );
-            },
+                );
+              },
+            ),
           ),
         ),
         if (widget.banners.length > 1) ...[

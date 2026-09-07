@@ -43,7 +43,9 @@ class ElectricityController extends Controller
             );
 
             return response()->json([
-                'message' => 'Electricity payment successful.',
+                'message' => $transaction->status->value === 'successful'
+                    ? 'Electricity payment successful.'
+                    : 'Electricity payment submitted and is being processed.',
                 'transaction' => new TransactionResource($transaction),
             ]);
         } catch (RuntimeException $e) {

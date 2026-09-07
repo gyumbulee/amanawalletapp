@@ -42,7 +42,11 @@ class TransactionFilter extends Equatable {
 
   Map<String, dynamic> toQueryParams() {
     return {
-      if (service != null) 'service': service!.apiValue,
+      // NOTE: query key is 'type', matching the backend's actual column
+      // name and TransactionController::index() — not 'service'. Sending
+      // 'service' here silently did nothing, since the backend never
+      // looked for that key.
+      if (service != null) 'type': service!.apiValue,
       if (status != null) 'status': status!.apiValue,
       if (search != null && search!.isNotEmpty) 'search': search,
       if (startDate != null) 'start_date': startDate!.toIso8601String().split('T').first,

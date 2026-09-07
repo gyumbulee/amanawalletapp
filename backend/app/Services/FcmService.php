@@ -33,6 +33,8 @@ class FcmService
         $tokens = DeviceToken::query()->where('user_id', $userId)->pluck('token');
 
         if ($tokens->isEmpty()) {
+            Log::info('FCM: skipped push - user has no registered device tokens.', ['user_id' => $userId]);
+
             return;
         }
 
@@ -44,6 +46,8 @@ class FcmService
     public function sendToToken(string $token, string $title, string $body, array $data = []): void
     {
         if (! $this->isConfigured()) {
+            Log::warning('FCM: skipped push - not configured (check FCM_PROJECT_ID / FCM_CREDENTIALS_PATH in .env and that the credentials file actually exists at that path).');
+
             return;
         }
 
@@ -72,6 +76,8 @@ class FcmService
             ]);
 
         if ($response->successful()) {
+            Log::info('FCM: push sent successfully.', ['title' => $title]);
+
             return;
         }
 
@@ -81,6 +87,7 @@ class FcmService
         // this way. Prune them so we stop wasting calls on them and the
         // device_tokens table doesn't accumulate garbage forever.
         if (in_array($errorStatus, ['UNREGISTERED', 'NOT_FOUND', 'INVALID_ARGUMENT'], true)) {
+            Log::info('FCM: pruning dead device token.', ['status' => $errorStatus]);
             DeviceToken::query()->where('token', $token)->delete();
 
             return;

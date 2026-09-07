@@ -19,7 +19,7 @@ import '../../../virtual_account/presentation/providers/virtual_account_provider
 import '../../../wallet/presentation/providers/wallet_balance_provider.dart';
 import '../../domain/entities/promo_banner.dart';
 import '../providers/banners_provider.dart';
-import '../widgets/banner_carousel.dart';
+import '../widgets/promo_banner_dialog.dart';
 import '../widgets/quick_action_item.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -68,7 +68,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     final user = ref.watch(authSessionProvider);
     final balanceAsync = ref.watch(walletBalanceProvider);
     final accountAsync = ref.watch(virtualAccountProvider);
-    final bannersAsync = ref.watch(bannersProvider);
+
+    // Side effect, not a build-time value — pops the promo dialog once
+    // banners load (see PromoBannerDialog for the "don't nag every refresh"
+    // logic). Scheduled after the current frame since showDialog can't be
+    // safely triggered mid-build.
+    ref.listen(bannersProvider, (previous, next) {
+      next.whenData((banners) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (context.mounted) {
+            PromoBannerDialog.maybeShow(context, ref, banners: banners, onTap: _onBannerTap);
+          }
+        });
+      });
+    });
 
     return ResponsiveScaffold(
       body: RefreshIndicator(
@@ -154,18 +167,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            bannersAsync.when(
-              // Deliberately quiet on loading/error/empty — a promo carousel
-              // failing to load shouldn't ever block or clutter the dashboard.
-              loading: () => const SizedBox.shrink(),
-              error: (error, _) => const SizedBox.shrink(),
-              data: (banners) => banners.isEmpty
-                  ? const SizedBox.shrink()
-                  : Padding(
-                      padding: const EdgeInsets.only(bottom: 24),
-                      child: BannerCarousel(banners: banners, onTap: _onBannerTap),
-                    ),
-            ),
             const Text('Quick Actions', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
             const SizedBox(height: 12),
             GridView.count(

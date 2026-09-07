@@ -17,7 +17,7 @@ class TransactionController extends Controller
         $transactions = $this->transactionRepository->paginateForUser(
             $request->user(),
             (int) $request->query('per_page', 20),
-            $request->only(['type', 'status'])
+            $request->only(['type', 'status', 'search', 'start_date', 'end_date'])
         );
 
         return response()->json([

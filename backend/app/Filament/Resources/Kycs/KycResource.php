@@ -11,6 +11,7 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Textarea;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
+use App\Enums\KycType;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -40,13 +41,13 @@ class KycResource extends Resource
                     ->icon('heroicon-o-user')
                     ->searchable(),
                 TextColumn::make('type')
-                    ->badge()
-                    ->icon(fn (string $state): string => match ($state) {
-                        'bvn', 'nin' => 'heroicon-o-identification',
-                        'id_card' => 'heroicon-o-credit-card',
-                        'proof_of_address' => 'heroicon-o-home',
-                        default => 'heroicon-o-document',
-                    }),
+    ->badge()
+    ->icon(fn (KycType $state): string => match ($state->value) {
+        'bvn', 'nin' => 'heroicon-o-identification',
+        'id_card' => 'heroicon-o-credit-card',
+        'proof_of_address' => 'heroicon-o-home',
+        default => 'heroicon-o-document',
+    }),
                 TextColumn::make('status')
                     ->badge()
                     ->color(fn (KycStatus $state): string => match ($state) {

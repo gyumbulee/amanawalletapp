@@ -21,10 +21,14 @@ class ErrorMapper {
   static Failure _mapDioException(DioException e) {
     switch (e.type) {
       case DioExceptionType.connectionTimeout:
-      case DioExceptionType.sendTimeout:
-      case DioExceptionType.receiveTimeout:
       case DioExceptionType.connectionError:
         return const NetworkFailure();
+      case DioExceptionType.sendTimeout:
+      case DioExceptionType.receiveTimeout:
+        // The request was (at least mostly) sent and we simply stopped
+        // waiting for a response — NOT the same as never reaching the
+        // server. See TimeoutFailure's doc comment.
+        return const TimeoutFailure();
       case DioExceptionType.badCertificate:
         return const NetworkFailure('Secure connection failed.');
       case DioExceptionType.cancel:

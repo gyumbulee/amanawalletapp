@@ -40,9 +40,23 @@ void handleBillPaymentSuccess(
 /// Call this from every bill-payment screen's `onConfirm` error branch
 /// (e.g. wrong PIN, insufficient balance, validation failure before the
 /// transaction was even created).
+///
+/// A [TimeoutFailure] gets different treatment on purpose: it means we
+/// simply didn't hear back from the server in time, not that the purchase
+/// failed — the debit/provider call may well have gone through. Showing a
+/// plain "failed" error here and stopping would be actively misleading, so
+/// instead this routes straight to the transaction history where the
+/// user can see the real outcome for themselves.
 void handleBillPaymentError(BuildContext context, Object? error) {
-  final failure = error is Failure ? error : null;
   Navigator.of(context).pop(); // close the PIN sheet
+
+  if (error is TimeoutFailure) {
+    context.showSnack(error.message, isError: true);
+    context.push(AppRoutes.transactions);
+    return;
+  }
+
+  final failure = error is Failure ? error : null;
   context.showSnack(
     failure?.message ?? 'Purchase failed. Please try again.',
     isError: true,

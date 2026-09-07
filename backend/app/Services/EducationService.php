@@ -2,12 +2,11 @@
 
 namespace App\Services;
 
-use App\Enums\ProviderLogStatus;
 use App\Enums\TransactionType;
+use App\Jobs\ProcessEducationPurchase;
 use App\Models\Transaction;
 use App\Models\User;
 use RuntimeException;
-use Throwable;
 
 class EducationService
 {
@@ -15,8 +14,6 @@ class EducationService
         protected EducationProviderResolver $providerResolver,
         protected TransactionService $transactionService,
         protected WalletService $walletService,
-        protected ProviderLogService $providerLogService,
-        protected TransactionConfirmationService $confirmationService,
     ) {}
 
     public function listPlans(string $educationType): array
@@ -68,76 +65,8 @@ class EducationService
         $this->walletService->debit($wallet, $amount, $transaction->reference, 'Education PIN purchase', $transaction);
         $this->transactionService->markProcessing($transaction);
 
-        $providers = $this->providerResolver->resolve();
-        $lastError = null;
+        ProcessEducationPurchase::dispatch($transaction->id, $educationType, $variationCode, $amount, $phone, $profileId);
 
-        foreach ($providers as $slug => $provider) {
-            $startedAt = microtime(true);
-            $requestPayload = ['education_type' => $educationType, 'variation_code' => $variationCode, 'amount' => $amount, 'phone' => $phone, 'reference' => $transaction->reference];
-
-            try {
-                $result = $provider->purchase($educationType, $variationCode, $amount, $phone, $profileId, $transaction->reference);
-                $status = $result['status'] ?? 'delivered';
-
-                $this->providerLogService->log(
-                    provider: $slug,
-                    serviceType: 'education',
-                    requestReference: $transaction->reference,
-                    transactionReference: $transaction->reference,
-                    requestPayload: $requestPayload,
-                    responsePayload: $result,
-                    status: ProviderLogStatus::Success,
-                    errorMessage: null,
-                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-                );
-
-                $meta = $transaction->meta ?? [];
-                $meta['pin'] = $result['pin'] ?? null;
-                $meta['serial'] = $result['serial'] ?? null;
-                $transaction->update(['meta' => $meta]);
-
-                if ($status === 'pending') {
-                    return $transaction;
-                }
-
-                if ($status !== 'delivered') {
-                    throw new RuntimeException("Provider returned unexpected status: {$status}");
-                }
-
-                return $this->confirmationService->confirm(
-                    $transaction->reference,
-                    'delivered',
-                    $result['provider_reference'] ?? null
-                );
-            } catch (Throwable $e) {
-                $lastError = $e;
-
-                $this->providerLogService->log(
-                    provider: $slug,
-                    serviceType: 'education',
-                    requestReference: $transaction->reference,
-                    transactionReference: $transaction->reference,
-                    requestPayload: $requestPayload,
-                    responsePayload: null,
-                    status: ProviderLogStatus::Failed,
-                    errorMessage: $e->getMessage(),
-                    durationMs: (int) ((microtime(true) - $startedAt) * 1000),
-                );
-
-                continue;
-            }
-        }
-
-        $this->walletService->credit(
-            $wallet,
-            $amount,
-            $transaction->reference.'-REVERSAL',
-            'Reversal: education PIN purchase failed on all providers',
-            $transaction
-        );
-
-        $this->transactionService->markFailed($transaction, $lastError?->getMessage() ?? 'All education providers failed.');
-
-        throw new RuntimeException('Education PIN purchase failed. Your wallet has been refunded.');
+        return $transaction;
     }
 }
